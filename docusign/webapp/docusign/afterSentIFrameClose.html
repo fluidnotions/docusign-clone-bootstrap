@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+</head>
+
+<body>
+    <!--<p>Testing: docusign after send redirect iframe</p>-->
+    <script>
+        (function() {
+
+            var getParameterByName = function getParameterByName(name) {
+                    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+                    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                        results = regex.exec(location.search);
+                    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+                },
+                postMessageToParent = function postMessageToParent() {
+                    console.log("calling postMessageToParent!");
+                    parent.postMessage(getParameterByName("envelopeId"), "*");
+                }
+
+            return {
+                postMessageToParent: postMessageToParent
+            }
+        })();
+    </script>
+</body>
+
+</html>

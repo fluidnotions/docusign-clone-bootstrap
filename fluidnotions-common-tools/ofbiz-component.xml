@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ofbiz-component name="fluidnotions-common-tools"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/ofbiz-component.xsd">
+    <resource-loader name="main" type="component"/>
+    <classpath type="dir" location="config"/>
+    <classpath type="jar" location="lib/*"/>
+    <classpath type="jar" location="build/lib/*"/>
+
+    <!-- service resources: model(s), eca(s) and group definitions -->
+    <entity-resource type="model" reader-name="main" loader="main" location="entitydef/entitymodel.xml"/>
+    <entity-resource type="group" reader-name="main" loader="main" location="entitydef/entitygroup.xml"/>
+
+    <!-- <service-resource type="model" loader="main" location="servicedef/services.xml"/>
+ -->
+
+    <!-- web applications; will be mounted when using the embedded container -->
+   <webapp name="fluidnotions-component"
+        title=""
+        server="default-server"
+        location="webapp/fldntns-common-tools-component"
+        base-permission="OFBTOOLS,WEBTOOLS"
+        mount-point="/fluidnotions-component"
+        app-bar-display="false"/>
+   <webapp name="fluidnotions"
+        title=""
+        server="default-server"
+        location="webapp/fldntns-common-tools"
+        mount-point="/fluidnotions"
+        app-bar-display="false"/>   
+</ofbiz-component>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site-conf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/site-conf.xsd">
+
+	<!-- Include requests for common opentaps features. -->
+	<include location="component://opentaps-common/webapp/common/WEB-INF/common-controller.xml"/>
+
+	<description> Site Configuration File</description>
+	<errorpage>/error/error.jsp</errorpage>
+
+	<handler name="java" type="request" class="org.ofbiz.webapp.event.JavaEventHandler"/>
+	<handler name="json" type="request" class="org.ofbiz.webapp.event.JSONServiceEventHandler"/>
+	<handler name="simple" type="request" class="org.ofbiz.webapp.event.SimpleEventHandler"/>
+	<handler name="service" type="request" class="org.ofbiz.webapp.event.ServiceEventHandler"/>
+	<handler name="http" type="view" class="org.ofbiz.webapp.view.HttpViewHandler"/>
+
+	<!-- view handlers -->
+	<handler name="screen" type="view" class="org.ofbiz.widget.screen.ScreenWidgetViewHandler"/>
+
+	<preprocessor>
+		<!-- Events to run on every request before security (chains exempt) -->
+		<event type="java" path="org.ofbiz.webapp.control.LoginWorker" invoke="checkExternalLoginKey"/>
+	</preprocessor>
+	<postprocessor>
+		<!-- Events to run on every request after all other processing (chains exempt) -->
+	</postprocessor>
+
+	<!-- ================= -->
+	<!-- Security Mappings -->
+	<!-- ================= -->
+
+	<request-map uri="checkLogin" edit="false">
+		<description>Verify a user is logged in.</description>
+		<security https="true" auth="false"/>
+		<event type="java" path="org.ofbiz.webapp.control.LoginWorker" invoke="checkLogin"/>
+		<response name="success" type="request" value="main"/>
+		<response name="error" type="view" value="login"/>
+	</request-map>
+
+	<request-map uri="login">
+		<security https="true" auth="false"/>
+		<event type="java" path="org.ofbiz.webapp.control.LoginWorker" invoke="login"/>
+		<response name="success" type="request" value="main"/>
+		<response name="requirePasswordChange" type="view" value="requirePasswordChange"/>
+		<response name="error" type="view" value="login"/>
+	</request-map>
+
+	<request-map uri="logout">
+		<security https="true" auth="true"/>
+		<event type="java" path="org.ofbiz.webapp.control.LoginWorker" invoke="logout"/>
+		<response name="success" type="request" value="checkLogin"/>
+		<response name="error" type="request" value="main"/>
+	</request-map>
+
+
+	<request-map uri="setSessionLocale">
+		<security https="true" auth="false"/>
+		<event type="java" path="org.ofbiz.common.CommonEvents" invoke="setSessionLocale"/>
+		<response name="success" type="request" value="main"/>
+		<response name="error" type="request" value="main"/>
+	</request-map>
+
+	<!-- ====================== -->
+	<!-- Basic Request Mappings -->
+	<!-- ====================== -->
+
+	<request-map uri="main">
+		<security https="true" auth="true"/>
+		<response name="success" type="view" value="test"/>
+		<!-- FIXME replace with post testing
+		<response name="success" type="view" value="main"/>-->
+	</request-map>
+
+
+	<request-map uri="lookupUidInfo">
+		<security https="true" auth="true"/>
+		<event type="java" path="com.fluidnotions.events.UidEvents" invoke="lookupUidInfo"/>
+		<response name="success" type="none"/>
+		<response name="error" type="none"/>
+	</request-map>
+
+	<request-map uri="entityInfo">
+		<security https="true" auth="true"/>
+		<event type="java" path="com.fluidnotions.events.AutocompleteAllFormBuilder" invoke="entityInfo"/>
+		<response name="success" type="none"/>
+		<response name="error" type="none"/>
+	</request-map>
+
+	<request-map uri="dynamicEntitySuggestFillForm">
+		<security https="true" auth="true"/>
+		<event type="java" path="com.fluidnotions.events.AutocompleteAllFormBuilder" invoke="dynamicAutocompleteAll"/>
+		<response name="success" type="none"/>
+		<response name="error" type="none"/>
+	</request-map>
+
+
+
+	<!-- ================== -->
+	<!-- Main Request Maps  -->
+	<!-- ================== -->
+
+	<request-map uri="getTenantdynamicDocDownloadSuffix">
+		<security https="true" auth="true"/>
+		<event type="json" invoke="docusign.util.getTenantDocDwnldSuffix"/>
+		<response name="success" type="none"/>
+		<response name="error" type="none"/>
+	</request-map>
+
+	<request-map uri="getHostBaseUrl">
+		<security https="true" auth="true"/>
+		<event type="json" invoke="docusign.util.getHostBaseUrl"/>
+		<response name="success" type="none"/>
+		<response name="error" type="none"/>
+	</request-map>
+
+
+
+	<request-map uri="entityStructure">
+		<security https="true" auth="true"/>
+		<event type="java" path="com.groupfio.docusign.events.DocusignSuggestEvents" invoke="entityStructure"/>
+		<response name="success" type="none"/>
+		<response name="error" type="none"/>
+	</request-map>
+
+
+
+	<!-- ============= -->
+	<!-- View Mappings -->
+	<!-- ============= -->
+
+	<view-map name="error" page="/error/error.jsp"/>
+	<view-map name="login" type="screen" page="component://opentaps-common/widget/screens/common/CommonScreens.xml#login"/>
+	<view-map name="requirePasswordChange" type="screen" page="component://opentaps-common/widget/screens/common/CommonScreens.xml#requirePasswordChange"/>
+
+	<!-- main screens for each section -->
+	<view-map name="main" type="screen" page="component://docusign/widget/docusign-component/screens/myhome/MyHomeScreens.xml#myHome"/>
+	<view-map name="test" type="screen" page="component://docusign/widget/docusign-component/screens/myhome/MyHomeScreens.xml#test"/>
+</site-conf>

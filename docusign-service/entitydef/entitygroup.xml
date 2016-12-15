@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entitygroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/entitygroup.xsd">
+
+  <entity-group group="org.ofbiz" entity="AuthenticatingUser"/> 
+  <entity-group group="org.ofbiz" entity="DocuSignUser"/> 
+  <entity-group group="org.ofbiz" entity="DocuSignEnvelope"/> 
+
+</entitygroup>

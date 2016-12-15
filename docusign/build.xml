@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<project name="docusign" default="all" basedir=".">
+
+	<!-- ================================================================== -->
+	<!-- Initialization of all property settings                            -->
+	<!-- ================================================================== -->
+
+	<target name="init">
+		<property environment="env" />
+		<property name="desc" value="docusign" />
+		<property name="name" value="docusign" />
+		<property name="src.dir" value="src" />
+		<property name="deploy.dir" value="webapp/docusign/WEB-INF/classes" />
+		<!-- This parameter must point to your ofbiz/ directory or the libraries for the financials app would not be found.
+         The default setting would work if you have checked out the financials module into your ofbiz/opentaps/ directory.
+         It would NOT work if you checked it out somewhere else and symlinked to it in your opentaps/ directory.
+         If you experience build problems, put the full path here -->
+		<property name="ofbiz.dir" value="../../" />
+	</target>
+
+	<target name="classpath">
+		<path id="local.class.path">
+			<fileset dir="${ofbiz.dir}/opentaps/fluidnotions-common-tools/build/lib" includes="*.jar"/>
+			<fileset dir="${ofbiz.dir}/framework/base/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/base/lib/commons" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/base/lib/j2eespecs" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/base/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/entity/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/entity/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/security/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/service/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/service/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/minilang/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/webapp/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/webapp/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/common/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/applications/party/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/applications/product/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/applications/marketing/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/applications/order/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/applications/content/build/lib" includes="*.jar" />
+		</path>
+	</target>
+
+	<!-- ================================================================== -->
+	<!-- Removes all created files and directories   - detached from other depends - since we have cyclic dep-->
+	<!-- ================================================================== -->
+
+	<target name="clean" depends="init">
+		<delete dir="${deploy.dir}" />
+	</target>
+
+	<!-- ================================================================== -->
+	<!-- Makes sure the needed directory structure is in place              -->
+	<!-- ================================================================== -->
+
+	<target name="prepare" depends="init">
+		<mkdir dir="${deploy.dir}" />
+	</target>
+
+
+	<!-- ================================================================== -->
+	<!-- Compilation of the source files                                                                                                                         -->
+	<!-- ================================================================== -->
+
+	<target name="classes" depends="prepare,classpath">
+		<javac debug="on" deprecation="on" destdir="${deploy.dir}">
+			<classpath>
+				<fileset dir="${ofbiz.dir}/opentaps/docusign/webapp/docusign/WEB-INF/lib" includes="*.jar" />
+				<path refid="local.class.path" />
+			</classpath>
+			<src path="${src.dir}" />
+		</javac>
+		<copy file="${ofbiz.dir}/opentaps/docusign/src/com/fluidnotions/docusign/services/NewUserDefaults.json" todir="${ofbiz.dir}/opentaps/docusign/webapp/docusign/WEB-INF/classes/com/fluidnotions/docusign/services"/>
+		<copy file="${ofbiz.dir}/opentaps/docusign/src/rebel.xml" todir="${ofbiz.dir}/opentaps/docusign/webapp/docusign/WEB-INF/classes/"/>
+	</target>
+
+
+	<target name="all" depends="classes"/>
+</project>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/services.xsd">
+  <description>Services</description>
+  <vendor></vendor>
+  <version>1.0</version>
+
+
+
+  <service auth="true" engine="pojo" invoke="getTenantdynamicDocDownloadSuffix" location="com.groupfio.docusign.services.GeneralUtilServices" name="docusign.util.getTenantDocDwnldSuffix">
+    <attribute mode="IN" name="tenantKey" optional="false" type="String"/>
+    <attribute mode="OUT" name="urlSuffix" optional="false" type="String"/>
+  </service>
+
+  <service auth="true" engine="pojo" invoke="lookupHostBaseUrl" location="com.groupfio.docusign.services.GeneralUtilServices" name="docusign.util.lookupHostBaseUrl">
+    <attribute mode="IN" name="tenantKey" optional="false" type="String"/>
+    <attribute mode="OUT" name="hostBaseUrl" optional="false" type="String"/>
+  </service>
+
+
+</services>

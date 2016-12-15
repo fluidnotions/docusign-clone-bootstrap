@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<project name="docusign-service" default="all" basedir=".">
+
+	<!-- ================================================================== -->
+	<!-- Initialization of all property settings                            -->
+	<!-- ================================================================== -->
+
+	<target name="init">
+		<property environment="env" />
+		<property name="desc" value="docusign-service" />
+		<property name="name" value="docusign-service" />
+		<property name="src.serv" value="src-service" />
+		<property name="src.lib" value="lib" />
+		<property name="build.dir" value="build" />
+		<property name="ofbiz.dir" value="../../" />
+	</target>
+
+	<target name="classpath">
+		<path id="local.class.path">
+			<fileset dir="${src.lib}" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/opentaps/fluidnotions-common-tools/build/lib" includes="*.jar"/>
+			<fileset dir="${ofbiz.dir}/framework/base/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/base/lib/commons" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/base/lib/j2eespecs" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/base/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/entity/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/entity/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/security/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/service/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/service/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/minilang/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/webapp/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/webapp/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/framework/common/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/applications/party/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/applications/product/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/applications/marketing/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/applications/order/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/applications/content/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/opentaps/opentaps-common/build/lib" includes="*.jar" />
+			<fileset dir="${ofbiz.dir}/opentaps/opentaps-common/lib" includes="opentaps-common-entities.jar opentaps-common-services.jar" />
+			<fileset dir="${ofbiz.dir}/opentaps/opentaps-common/lib/hibernate" includes="*.jar" />
+			<!-- point this to your crmsfa installation build/lib -->
+			<fileset dir="${ofbiz.dir}/opentaps/crmsfa/build/lib" includes="*.jar" />
+		</path>
+	</target>
+
+	
+
+	
+	<!-- ================================================================== -->
+	<!-- Removes all created files and directories   - detached from other depends - since we have cyclic dep-->
+	<!-- ================================================================== -->
+
+	
+	<target name="clean" depends="init">
+		<delete dir="${build.dir}" />
+	</target>
+
+
+
+	<!-- ================================================================== -->
+	<!-- Makes sure the needed directory structure is in place              -->
+	<!-- ================================================================== -->
+
+	
+	<target name="prepare" depends="init">
+			<mkdir dir="${build.dir}/classes" />
+			<mkdir dir="${build.dir}/lib" />
+		</target>
+
+
+	<!-- ================================================================== -->
+	<!-- Compilation of the source files                                                                                                                         -->
+	<!-- ================================================================== -->
+
+	
+	<target name="serv-classes" depends="prepare,classpath">
+		<javac debug="on" deprecation="on" destdir="${build.dir}/classes">
+			<classpath>
+				<path refid="local.class.path" />
+			</classpath>
+			<src path="${src.serv}" />
+		</javac>
+	</target>
+
+	<target name="jar" depends="serv-classes">
+		<jar jarfile="${build.dir}/lib/${name}.jar" basedir="${build.dir}/classes" />
+	</target>
+
+
+	<target name="all" depends="jar" />
+</project>

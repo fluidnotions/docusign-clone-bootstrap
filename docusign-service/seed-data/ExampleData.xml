@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-engine-xml>
+
+	<!-- main database -->
+	<DocuSignAuthenticatingUser
+		afterSendRedirectUrlBase="http://localhost:7611" createdStamp="2016-09-23 21:43:31.0"
+		createdTxStamp="2016-09-23 21:43:31.0" enabled="Y"
+		integratorKey="7d17d47a-515c-43f8-9580-c0cfbbef89f9" lastUpdatedStamp="2016-09-23 21:43:31.0"
+		lastUpdatedTxStamp="2016-09-23 21:43:31.0" password="12345@fio"
+		tenantKey="1_tenant" username="erp-integrations-admin@myfioscm.com" />
+
+	<DocuSignAuthenticatingUser
+		afterSendRedirectUrlBase="http://stagingmt.groupfio.com:5211/"
+		createdStamp="2016-09-29 21:11:00.0" createdTxStamp="2016-09-29 21:11:00.0"
+		enabled="Y" integratorKey="f4bbd819-9d62-4c36-a44c-60599deb09c4"
+		lastUpdatedStamp="2016-09-29 21:11:00.0" lastUpdatedTxStamp="2016-09-29 21:11:00.0"
+		password="docusign@fio" tenantKey="0017" username="docusign.admin@myfio.org" />
+
+	<OpentapsWebApps applicationId="ds" applicationName="DocuSign Admin"
+		createdStamp="2016-09-22 19:44:29.0" createdTxStamp="2016-09-22 19:44:29.0"
+		description="docusign create and disable new users, associated with userLoginIds, also view envelop statuses"
+		imageHoverUrl="/docusign/assets/main/icon/docusign-icon.png" imageUrl="/docusign/assets/main/icon/docusign-icon.png"
+		lastUpdatedStamp="2016-09-22 19:44:29.0" lastUpdatedTxStamp="2016-09-22 19:44:29.0"
+		linkUrl="/docusign-component/control/main" sequenceNum="2"
+		shortName="DocuSign Admin" />
+
+</entity-engine-xml>
