@@ -1,0 +1,34 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      <ul class="list-group">
+        <li class="list-group-item"> <i class="glyphicon glyphicon-envelope"></i>&nbsp;&nbsp;
+          <span>{{:envelopeInformation.emailSubject}}</span>
+        </li>
+        <li class="list-group-item"><b>Sent:&nbsp;</b>{{dateformat:envelopeInformation.sentDateTime}}</li>
+      </ul>
+    </h3>
+  </div>
+  <div class="panel-body">
+    <ul class="list-group">
+      {{for recipientInformation.signers}}
+      <li class="list-group-item">
+        <ul class="list-group">
+          <li class="list-group-item"><b>Recipient Name:&nbsp;</b>{{:name}}</li>
+          <li class="list-group-item"><b>Email:&nbsp;</b>{{:email}}</li>
+          <li class="list-group-item"><b>Routing Order:&nbsp;</b>{{:routingOrder}}</li>
+          <li class="list-group-item"><b>Status:&nbsp;</b>
+            <span class="label label-{{if status === 'sent'}}success{{else}}danger{{/if}}">{{:status}}</span>
+          </li>
+          {{if accessCode}}
+          <li class="list-group-item"><b>Signer Authentication:&nbsp;</b>An access code was set and will be sent to the recipient separately</li>{{/if}} {{if recipientSuppliesTabs === "true"}}
+          <li class="list-group-item"><b>Fields:&nbsp;</b>No fields were added to the documenet the recipient will be expected to supply form fields</li>
+          {{else}}
+          <li class="list-group-item"><b>Fields:&nbsp;</b>Form fields were added to the document</li>
+          {{/if}}
+        </ul>
+      </li>
+      {{/for}}
+    </ul>
+  </div>
+</div>

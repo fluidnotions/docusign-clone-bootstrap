@@ -1,0 +1,38 @@
+{
+  "name": "docusign",
+  "version": "3.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "JSON2": "^0.1.0",
+    "bluebird": "~3.0.5",
+    "jquery": "*",
+    "lockr": "*",
+    "lodash": "^4.17.2",
+    "moment": "^2.14.1",
+    "pym.js": "^1.1.1",
+    "spin": "*"
+  },
+  "devDependencies": {
+    "browserify": "12.0.2",
+    "gulp": "~3.9.0",
+    "gulp-batch": "~1.0.5",
+    "gulp-buffer": "0.0.2",
+    "gulp-clean-css": "^2.0.12",
+    "gulp-concat": "^2.6.0",
+    "gulp-concat-css": "^2.3.0",
+    "gulp-connect": "^5.0.0",
+    "gulp-debug": "^2.1.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^2.0.0",
+    "gulp-watch": "^4.3.10",
+    "less": "^2.7.1",
+    "vanilla-modal": "^1.3.0",
+    "vinyl-source-stream": "~1.1.0"
+  },
+  "scripts": {
+    "start": "gulp",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "justin@fluidnotions.com"
+}

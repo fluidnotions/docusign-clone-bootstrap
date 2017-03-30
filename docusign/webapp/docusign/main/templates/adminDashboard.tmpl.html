@@ -1,0 +1,33 @@
+<!-- <div class="bootstrap-iso"> -->
+<div>
+    <div id="ds-ui-wrapper" style="display:none;">
+        <div class="page-content-body" style="height:700px;width:100%">
+            <ul class="nav nav-pills">
+                <li class="active">
+                    <a data-show="showAddUserToTenantAccForm" href="#">Add User</a>
+                </li>
+                <li>
+                    <a data-show="showDisableUserForm" href="#">Disable User</a>
+                </li>
+              
+                {{if (debugging === true)}}
+                <li>
+                    <a data-show="showSetupDocumentForm" href="#">Sign Mode Tests</a>
+                </li>
+                <li>
+                    <a data-show="showOtherTests" href="#">Other Tests</a>
+                </li>
+                  <li>
+                    <a data-show="showEnvelopeStatusTable" href="#">Envelope Status</a>
+                </li>
+                {{/if}}
+            </ul>
+
+
+            <div id="docusign">
+                <div id="spinner" style="position: fixed;  top: 30%;  left: 50%;  margin-top: -50px;  margin-left: -85px; z-index:1900;"></div>
+            </div>
+
+        </div>
+    </div>
+</div>

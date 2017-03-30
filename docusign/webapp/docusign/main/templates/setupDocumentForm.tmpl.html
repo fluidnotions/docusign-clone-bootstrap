@@ -1,0 +1,44 @@
+<div id="showSetupDocumentPOCform" class="panel panel-default">
+  <div class="panel-heading">Set up document form</div>
+  <div class="panel-body">
+    <form class="form-horizontal">
+      <div class="form-group">
+        <label for="docUrl" class="col-sm-4 control-label">Dynamic Document Url</label>
+        <div class="col-sm-8">
+          <input type="text" class="signer-input form-control" id="docUrl" placeholder="" value="http://localhost:7611/financials/control/invoice.pdf?invoiceId=15120&reportId=FININVOICE&reportType=application/pdf">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="docName" class="col-sm-4 control-label">Document Name</label>
+        <div class="col-sm-8">
+          <input type="text" class="signer-input form-control" id="docName" placeholder="" value="test">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="emailSubject" class="col-sm-4 control-label">Email Subject</label>
+        <div class="col-sm-8">
+          <input type="text" class="signer-input form-control" id="emailSubject" placeholder="" value="Please sign asap">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="emailBody" class="col-sm-4 control-label">Email Body</label>
+        <div class="col-sm-8">
+          <input type="text" class="signer-input form-control" id="emailBody" placeholder="" value="bla bla bla">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="mode" class="col-sm-4 control-label">Mode</label>
+        <div class="col-sm-8">
+          <!-- <input type="text" class="signer-input form-control" id="mode" placeholder="custom / signAndSend" value="signAndSend"> -->
+          <select id="mode" class="selectpicker form-control">
+            <option value="signAndSend">Sign And Send</option>
+            <option value="custom">Customize And Send</option>
+          </select>
+        </div>
+      </div>
+      <button id="setupDocumentSendEmbeddedViewBtn" type="button" class="btn btn-default pull-right">
+        <span class="glyphicon glyphicon-ok"></span>
+      </button>
+    </form>
+  </div>
+</div>
