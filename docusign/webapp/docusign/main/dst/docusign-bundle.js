@@ -39429,7 +39429,7 @@ module.exports = function(){
 //NO CONFLICT EDITED
 var $ = global.ds$;
 var _ = require('lodash');
-var debug = true;
+var debug = false;
 // var testOptions = {
 //     inputFieldArray: [{
 //         name: "firstName",
@@ -39544,41 +39544,9 @@ module.exports = function FormBuilderPlus() {
                 }
                 if (replace === false) firstOrderTemplateString = firstOrderTemplateString.concat(char);
             }
-            console.log("firstOrderTemplateString: " + firstOrderTemplateString);
+            if (debug) console.log("firstOrderTemplateString: " + firstOrderTemplateString);
             return firstOrderTemplateString
         },
-        // eventHandlerHelper = function eventHandlerHelper(formButtonId, formId){
-        //             var btnEl = $('#' + formButtonId);
-        //             if (btnEl.length === 0) {
-        //                 alert('#' + formButtonId + ", could not be found");
-        //             } else {
-        //                 btnEl.on('click', function(e) {
-        //                   var evt = {
-        //                     target: e.target,
-        //                     type: e.type,
-        //                     relatedTarget: e.relatedTarget,
-        //                     currentTarget: e.currentTarget,
-        //                     timestamp: e.timestamp,
-        //                     data: e.data,
-        //                     x: e.pageX,
-        //                     y: e.pageY,
-        //                     namespace: e.namespace,
-        //                     metaKey: e.metaKey
-        //                   }
-        //                     var nameValues = $('#' + formId).serializeArray();;
-        //                     var formInput = {};
-        //                     _.each(nameValues, function(index, pairs) {
-        //                         formInput[pairs.name] = pairs.value;
-        //                     });
-        //                     var payload = {
-        //                         id: formButtonId,
-        //                         data: formInput,
-        //                         e: evt
-        //                     };
-        //                     window.postMessage(payload, window.host);
-        //                 });
-        //               }
-        // },
         autocompleteFormBuilder = function autocompleteFormBuilder(options) {
             _.forEach(options.inputFieldArray, function(value) {
                 value.fieldDisplyLabel = _.startCase(value.name);
@@ -39589,31 +39557,59 @@ module.exports = function FormBuilderPlus() {
             var formTemplateStr = null;
             var potentialDocuSignUsers = [];
             var currentInput = {};
-            //has to be u here
-            // $('.formBuilderPlus').on('keydown', '.formBuilderPlus-input', function(event) {
-            //     var elId = '#' + event.currentTarget.id;
-            //     if ($(elId).val().length === 0) {
-            //         //hide the suggest drop down
-            //         $(".suggest-menu").hide();
-            //     }
-            //     if (event.keyCode || event.charCode) {
-            //         var key = event.keyCode || event.charCode;
-            //         if (key == 8 || key == 46) {
-            //             $(".suggest-menu").hide();
-            //         }
-            //     }
-            // });
-            $('.formBuilderPlus').on('focusin', '.formBuilderPlus-input', function(event) {
+            var elId = null;
+            var fieldName = null;
+            // for some reason this only works on document tried other selector combos
+            $(document).on('focus', '.formBuilderPlus-input', function(event) {
+                if (debug) console.log("focus event on id: " + event.currentTarget.id + " hiding .suggest");
                 $(".suggest-menu").hide();
-                alert("1");
             });
-            $('.formBuilderPlus-input').on('focus', function(event) {
-                $(".suggest-menu").hide();
-                alert("2")
+            // for some reason this only works on document tried other selector combos
+            $(document).on('keyup', '.formBuilderPlus-input', function(event) {
+                fieldName = event.currentTarget.name;
+                if (debug) console.log("keyup event on field with name: " + fieldName);
+                //also the id of element so we can extract val() for searchTerm
+                elId = '#' + event.currentTarget.id;
+                var searchTerm = $(elId).val();
+                if (searchTerm.length < 3) return;
+                if (debug) console.log("searchTerm: " + searchTerm);
+                //reset any existing suggestions
+                $("#" + fieldName + "-input-sugggest").hide();
+                if (debug) console.log("addDocusignUserSuggestFillForm: fieldName: " + fieldName + ", searchTerm: " + searchTerm);
+                ajaxPost(url, {
+                    "fieldName": fieldName,
+                    "searchTerm": searchTerm
+                }).then(function(data) {
+                    //if (debug) 
+                        console.log("lookup objects " + JSON.stringify(data));
+                    potentialDocuSignUsers = data;
+                    currentInput[fieldName] = searchTerm;
+                    return tmpls.renderTemplate(formTemplateStr, {
+                        data: {
+                            currentInput: currentInput,
+                            suggestions: potentialDocuSignUsers
+                        }
+                    });
+                }).then(function() {
+                    $("#" + fieldName + "-input-sugggest").show();
+                });
             });
-            $('.formBuilderPlus').on('focus', '.formBuilderPlus-input', function(event) {
-                $(".suggest-menu").hide();
-                alert("3")
+            // for some reason this only works on document tried other selector combos
+            $(document).on("click", ".suggest-menu .suggestion", function(event) {
+                var arrObjIndex = event.currentTarget.id.split('-')[1];
+                if (debug) console.log("click event on .suggestion item index: " + arrObjIndex);
+                if (debug) console.log("selected index: " + arrObjIndex);
+                var selObject = potentialDocuSignUsers[arrObjIndex];
+                if (debug) console.log("selected object: " + JSON.stringify(selObject));
+                $(elId).val($(this).text());
+                _.forEach(options.inputFieldArray, function(value) {
+                    if (value.name !== fieldName) {
+                        var autoFillValue = selObject[value.name];
+                        $('#' + value.name + '-input').val(autoFillValue);
+                    }
+                });
+                $("#" + fieldName + "-input-sugggest").hide();
+                potentialDocuSignUsers = null;
             });
             return tmpls.getBPFileAsStr("formBuilder").then(function(secondOrderTemplate) {
                 if (debug) console.log("secondOrderTemplate str: " + secondOrderTemplate);
@@ -39624,50 +39620,6 @@ module.exports = function FormBuilderPlus() {
                         currentInput: currentInput,
                         suggestions: potentialDocuSignUsers
                     }
-                });
-            }).then(function() {
-                $('.formBuilderPlus').on('keyup', '.formBuilderPlus-input', function(event) {
-                    var fieldName = event.currentTarget.name;
-                    //also the id of element so we can extract val() for searchTerm
-                    var elId = '#' + event.currentTarget.id;
-                    var searchTerm = $(elId).val();
-                    if (searchTerm.length < 3) return;
-                    console.log("searchTerm: " + searchTerm);
-                    //reset any existing suggestions
-                    $("#" + fieldName + "-input-sugggest").hide();
-                    console.log("addDocusignUserSuggestFillForm: fieldName: " + fieldName + ", searchTerm: " + searchTerm);
-                    ajaxPost(url, {
-                        "fieldName": fieldName,
-                        "searchTerm": searchTerm
-                    }).then(function(data) {
-                        console.log("lookup objects " + JSON.stringify(data));
-                        potentialDocuSignUsers = data;
-                        currentInput[fieldName] = searchTerm;
-                        return tmpls.renderTemplate(formTemplateStr, {
-                            data: {
-                                currentInput: currentInput,
-                                suggestions: potentialDocuSignUsers
-                            }
-                        });
-                    }).then(function() {
-                        $("#" + fieldName + "-input-sugggest").show();
-                        //Bind click event to list elements in results
-                        $('.suggest-menu').on("click", ".suggestion", function(e) {
-                            var arrObjIndex = e.currentTarget.id.split('-')[1];
-                            if (debug) console.log("selected index: " + arrObjIndex);
-                            var selObject = potentialDocuSignUsers[arrObjIndex];
-                            if (debug) console.log("selected object: " + JSON.stringify(selObject));
-                            $(elId).val($(this).text());
-                            _.forEach(options.inputFieldArray, function(value) {
-                                if (value.name !== fieldName) {
-                                    var autoFillValue = selObject[value.name];
-                                    $('#' + value.name + '-input').val(autoFillValue);
-                                }
-                            });
-                            $("#" + fieldName + "-input-sugggest").hide();
-                            potentialDocuSignUsers = null;
-                        });
-                    });
                 });
             });
         },

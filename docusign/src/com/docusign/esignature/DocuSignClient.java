@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,8 +34,6 @@ import org.apache.commons.io.IOUtils;
 import org.ofbiz.base.util.Debug;
 import org.ofbiz.base.util.UtilProperties;
 import org.ofbiz.base.util.UtilValidate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.xml.sax.InputSource;
 
@@ -298,7 +297,12 @@ public class DocuSignClient {
 			Debug.logInfo("accountId: " + accountId + ", baseUrl: " + baseUrl, this.getClass()
 					.getName());
 
-		} finally {
+		}catch(UnknownHostException uhe){
+			Debug.logInfo("no internet connection, unable to poll docusign api for envelope updates!", this.getClass()
+					.getName());
+			return false;
+			
+		}finally {
 			if (conn != null)
 				conn.disconnect();
 		}
