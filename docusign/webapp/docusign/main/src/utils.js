@@ -63,6 +63,23 @@ var AjaxWrap = function AjaxWrap() {
             });
         });
     }
+    var ajaxGet = function ajaxGet(url, data) {
+        return new Promise(function(resolve, reject) {
+            $.ajax({
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                type: "GET",
+                url: url,
+                data: data,
+                success: function(resp, textStatus, jqXHR) {
+                    resolve(resp);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    reject(errorThrown);
+                }
+            });
+        });
+    }
     var ajaxPostJson = function ajaxPostJson(url, data) {
         return new Promise(function(resolve, reject) {
             $.ajax({
@@ -82,7 +99,8 @@ var AjaxWrap = function AjaxWrap() {
     }
     return {
         ajaxPost: ajaxPost,
-        ajaxPostJson: ajaxPostJson
+        ajaxPostJson: ajaxPostJson,
+        ajaxGet: ajaxGet
     }
 }
 var TemplateUtils = function TemplateUtils(options) {
@@ -185,12 +203,13 @@ var Spinner = function Spinner() {
         start = function start() {
             var target = document.getElementById('spinner');
             console.log("spin target: " + target);
+
             spinner = new spin({
                 lines: 11, // The number of lines to draw
                 length: 29, // The length of each line
                 width: 12, // The line thickness
                 radius: 76, // The radius of the inner circle
-                scale: 1, // Scales overall size of the spinner
+                scale: 1.5, // Scales overall size of the spinner
                 corners: 1, // Corner roundness (0..1)
                 color: '#000', // #rgb or #rrggbb or array of colors
                 opacity: 0.25, // Opacity of the lines

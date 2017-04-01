@@ -20,7 +20,7 @@
 
 	<target name="classpath">
 		<path id="local.class.path">
-			<fileset dir="${ofbiz.dir}/opentaps/fluidnotions-common-tools/build/lib" includes="*.jar"/>
+			<fileset dir="${ofbiz.dir}/hot-deploy/fluidnotions-common-tools/build/lib" includes="*.jar"/>
 			<fileset dir="${ofbiz.dir}/framework/base/lib" includes="*.jar" />
 			<fileset dir="${ofbiz.dir}/framework/base/lib/commons" includes="*.jar" />
 			<fileset dir="${ofbiz.dir}/framework/base/lib/j2eespecs" includes="*.jar" />
@@ -66,13 +66,13 @@
 	<target name="classes" depends="prepare,classpath">
 		<javac debug="on" deprecation="on" destdir="${deploy.dir}">
 			<classpath>
-				<fileset dir="${ofbiz.dir}/opentaps/docusign/webapp/docusign/WEB-INF/lib" includes="*.jar" />
+				<fileset dir="${ofbiz.dir}/hot-deploy/docusign/webapp/docusign/WEB-INF/lib" includes="*.jar" />
 				<path refid="local.class.path" />
 			</classpath>
 			<src path="${src.dir}" />
 		</javac>
-		<copy file="${ofbiz.dir}/opentaps/docusign/src/com/fluidnotions/docusign/services/NewUserDefaults.json" todir="${ofbiz.dir}/opentaps/docusign/webapp/docusign/WEB-INF/classes/com/fluidnotions/docusign/services"/>
-		<copy file="${ofbiz.dir}/opentaps/docusign/src/rebel.xml" todir="${ofbiz.dir}/opentaps/docusign/webapp/docusign/WEB-INF/classes/"/>
+		<copy file="${ofbiz.dir}/hot-deploy/docusign/src/com/fluidnotions/docusign/services/NewUserDefaults.json" todir="${ofbiz.dir}/opentaps/docusign/webapp/docusign/WEB-INF/classes/com/fluidnotions/docusign/services"/>
+		<copy file="${ofbiz.dir}/hot-deploy/docusign/src/rebel.xml" todir="${ofbiz.dir}/opentaps/docusign/webapp/docusign/WEB-INF/classes/"/>
 	</target>
 
 

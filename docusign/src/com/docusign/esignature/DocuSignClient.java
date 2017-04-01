@@ -101,7 +101,7 @@ public class DocuSignClient {
 	}
 
 	public void init(AuthenticatingUser au) throws MalformedURLException, IOException {
-	        this.authenticatingUser = au;
+	    this.authenticatingUser = au;
 		init(au.getUsername(), au.getPassword(), au.getIntegratorKey());
 		this.tabsAndSignEmbedded = new TabsAndSignEmbedded(serverUrl);
 		this.afterSendRedirectUrl = au.getAfterSendRedirectUrlBase();

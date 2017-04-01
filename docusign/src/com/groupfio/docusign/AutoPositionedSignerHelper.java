@@ -128,12 +128,14 @@ public class AutoPositionedSignerHelper {
 				if (i == 0) {
 					mms.setxPos(llx + (wdt * 0.3));
 					mms.setyPos(lly + (hdt * 0.8));
+					
+					addDefaultSigner(envDef, lastPageNumber, mms, true);
 				} else if (i == 1) {
 					mms.setxPos(llx + (wdt * 0.6));
 					mms.setyPos(lly + (hdt * 0.8));
+					
+					addDefaultSigner(envDef, lastPageNumber, mms, false);
 				}
-
-				addDefaultSigner(envDef, lastPageNumber, mms);
 				i++;
 			}
 
@@ -156,35 +158,21 @@ public class AutoPositionedSignerHelper {
 
 			System.out.println("EnvelopeSummary: " + envelopeSummary);
 
-			// set the url where you want the sender to go once they are done
-			// editing/sending the envelope
-			ReturnUrlRequest returnUrl = new ReturnUrlRequest();
-			returnUrl.setReturnUrl(afterSendRedirectUrl);
-
-			// call the createEnvelope() API
-			ViewUrl senderView = envelopesApi.createSenderView(accountId, envelopeSummary.getEnvelopeId(), returnUrl);
-
-			// set the url where you want the recipient to go once they are done
-			// signing
-//			RecipientViewRequest returnUrl2 = new RecipientViewRequest();
-//			returnUrl2.setReturnUrl(afterSendRedirectUrl);
-//			returnUrl2.setAuthenticationMethod("email");
+			RecipientViewRequest returnUrl2 = new RecipientViewRequest();
+			returnUrl2.setReturnUrl(afterSendRedirectUrl);
+			returnUrl2.setAuthenticationMethod("email");
 //
 //			// recipient information must match embedded recipient info we
 //			// provided in step #2
-//			returnUrl2.setEmail(findEmbeddedSigner(signers).getSignerEmail());
-//			returnUrl2.setUserName(findEmbeddedSigner(signers).getSignerName());
-//			returnUrl2.setRecipientId(findEmbeddedSigner(signers).getRecipientId());
-//			returnUrl2.setClientUserId(findEmbeddedSigner(signers).getClientUserId());
+			returnUrl2.setEmail(signers.get(0).getSignerEmail());
+			returnUrl2.setUserName(signers.get(0).getSignerName());
+			returnUrl2.setRecipientId(signers.get(0).getRecipientId());
+			returnUrl2.setClientUserId(signers.get(0).getClientUserId());
 //
 //			// call the CreateRecipientView API
-//			ViewUrl recipientView = envelopesApi.createRecipientView(accountId, envelopeSummary.getEnvelopeId(), returnUrl2);
-//
-//			Map<String, String> views = new HashMap<String, String>();
-//			views.put("sender", senderView.getUrl());
-//			views.put("recipient", recipientView.getUrl());
+			ViewUrl recipientView = envelopesApi.createRecipientView(accountId, envelopeSummary.getEnvelopeId(), returnUrl2);
 
-			return senderView.getUrl();
+			return recipientView.getUrl();
 
 		} catch (com.docusign.esign.client.ApiException ex) {
 			System.out.println("Exception: " + ex);
@@ -192,19 +180,9 @@ public class AutoPositionedSignerHelper {
 		return null;
 	}
 
-	public RecipientModel findEmbeddedSigner(List<RecipientModel> signers) {
-		if (embeddedSigner == null) {
-			for (RecipientModel ms : signers) {
-				if (ms.isEmbeddedSigning()) {
-					embeddedSigner = ms;
-					break;
-				}
-			}
-		}
-		return embeddedSigner;
-	}
+	
 
-	public void addDefaultSigner(EnvelopeDefinition envDef, String lastPageNumber, RecipientModel ms) {
+	public void addDefaultSigner(EnvelopeDefinition envDef, String lastPageNumber, RecipientModel ms, boolean embedded) {
 		Tabs tabs = new Tabs();
 
 		Signer signer = new Signer();
@@ -216,7 +194,7 @@ public class AutoPositionedSignerHelper {
 		// Must set |clientUserId| for embedded recipients and provide the same
 		// value when requesting
 		// the recipient view URL in the next step
-		if (ms.isEmbeddedSigning())
+		if (embedded)
 			signer.setClientUserId(ms.getClientUserId());
 
 		DateSigned dateSigned = new DateSigned();

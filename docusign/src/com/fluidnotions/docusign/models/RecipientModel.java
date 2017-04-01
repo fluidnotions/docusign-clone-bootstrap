@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
-@JsonPropertyOrder({ "signerEmail", "signerName", "recipientId", "routingOrder", "clientUserId" })
+@JsonPropertyOrder({ "signerEmail", "signerName", "recipientId", "routingOrder", "clientUserId", "embeddedSigner" })
 public class RecipientModel {
 
 	@JsonProperty("signerEmail")
@@ -25,6 +25,7 @@ public class RecipientModel {
 	private String routingOrder;
 	@JsonProperty("clientUserId")
 	private String clientUserId;
+
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -48,23 +49,6 @@ public class RecipientModel {
 	}
 
 	public RecipientModel() {
-	}
-
-	public RecipientModel(Integer routingOrder, String signerEmail, String signerName, String recipientId) {
-		this(routingOrder, signerEmail, signerName, recipientId, null);
-	}
-
-	public RecipientModel(Integer routingOrder, String signerEmail, String signerName, String recipientId, String clientUserId) {
-		super();
-		this.signerEmail = signerEmail;
-		this.signerName = signerName;
-		this.recipientId = recipientId;
-		this.routingOrder = routingOrder.toString();
-		this.clientUserId = clientUserId;
-	}
-
-	public boolean isEmbeddedSigning() {
-		return (clientUserId != null);
 	}
 
 	public void setEmbeddedSigningTrue() {
@@ -199,7 +183,7 @@ public class RecipientModel {
 	public void setClientUserId(String clientUserId) {
 		this.clientUserId = clientUserId;
 	}
-
+	
 	@JsonAnyGetter
 	public Map<String, Object> getAdditionalProperties() {
 		return this.additionalProperties;
