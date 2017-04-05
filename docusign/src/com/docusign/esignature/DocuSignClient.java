@@ -295,8 +295,8 @@ public class DocuSignClient {
 			accountId = loginAccounts.get(0).getAccountId();
 			baseUrl = loginAccounts.get(0).getBaseUrl();
 
-//			Debug.logInfo("accountId: " + accountId + ", baseUrl: " + baseUrl, this.getClass()
-//					.getName());
+			Debug.logInfo("accountId: " + accountId + ", baseUrl: " + baseUrl, this.getClass()
+					.getName());
 
 		} finally {
 			if (conn != null)

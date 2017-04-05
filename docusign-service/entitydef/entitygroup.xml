@@ -5,5 +5,6 @@
   <entity-group group="org.ofbiz" entity="AuthenticatingUser"/> 
   <entity-group group="org.ofbiz" entity="DocuSignUser"/> 
   <entity-group group="org.ofbiz" entity="DocuSignEnvelope"/> 
+  <entity-group group="org.ofbiz" entity="DocuSignEnvelopeSignerStatus"/>
 
 </entitygroup>

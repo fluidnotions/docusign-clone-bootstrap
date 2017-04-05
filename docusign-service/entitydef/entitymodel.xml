@@ -42,9 +42,7 @@
         <field name="senderUserLoginId" type="id-ne"></field>
         <field name="docuSignUserEmail" type="comment"></field>
         <field name="senderDocuSignUserId" type="comment"></field>
-
         <field name="emailSubject" type="comment"></field>
-
         <field name="status" type="comment"></field>
         <field name="documentsUri" type="comment"></field>
         <field name="recipientsUri" type="comment"></field>
@@ -56,14 +54,38 @@
         <field name="documentsCombinedUri" type="comment"></field>
         <field name="certificateUri" type="comment"></field>
         <field name="templatesUri" type="comment"></field>
+        
+        <relation type="many" rel-entity-name="DocuSignEnvelopeSignerStatus">
+        	<key-map field-name="envelopeId"/>
+      	</relation>
 
         <prim-key field="envelopeId"/>
+    </entity>
+    
+    <entity entity-name="DocuSignEnvelopeSignerStatus"
+            package-name=""
+            title="(stored in tenant database)">
+            
+      <field name="envelopeId" type="comment"></field>
+      <field name="isBulkRecipient" type="comment"></field>
+      <field name="name" type="comment"></field>
+      <field name="email" type="comment"></field>
+      <field name="recipientId" type="comment"></field>
+      <field name="recipientIdGuid" type="comment"></field>
+      <field name="requireIdLookup" type="comment"></field>
+      <field name="userId" type="comment"></field>
+      <field name="routingOrder" type="comment"></field>
+      <field name="status" type="comment"></field>
+      <field name="signedDateTime" type="comment"></field>
+      <field name="deliveredDateTime" type="comment"></field>
+
+      <prim-key field="envelopeId"/>
+      <prim-key field="userId"/>
     </entity>
 
 
 
-
-
+		 
 	 <view-entity entity-name="DocusignUserLoginPersonNameAndEmail" package-name="org.ofbiz"
 		title="helps with suggest boxes in a few components">
 		<member-entity entity-alias="PTY" entity-name="Party" />

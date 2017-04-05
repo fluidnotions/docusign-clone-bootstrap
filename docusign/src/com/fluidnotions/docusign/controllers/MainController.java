@@ -231,19 +231,19 @@ public class MainController {
 			}
 
 
-			String senderViewUrl = null;
+			String senderResult = null;
 			try {
-			    senderViewUrl = docuSignService.addSignerTabsAndAllowSenderToSignEmbedded(autoPositioned.getTenantKey(),
+				senderResult = docuSignService.addSignerTabsAndAllowSenderToSignEmbedded(autoPositioned.getTenantKey(),
 						autoPositioned.getDocuSignUserEmail(), autoPositioned, serverTempDocPath);
 			} catch (DocuSigAPIException e) {
 				e.printStackTrace();
 				return new Response("failed", e.getCause().getMessage());
 			}
 
-			if(senderViewUrl != null){
+			if(senderResult != null){
 			   
-			    Debug.logInfo("senderViewUrl: "+senderViewUrl, this.getClass().getName());
-			    return new Response("success",senderViewUrl);
+			    Debug.logInfo("senderResult: "+senderResult, this.getClass().getName());
+			    return new Response("success",senderResult);
 			}
 
 			return new Response("failed", "Result doesn't contain sender view!");

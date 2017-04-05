@@ -2,7 +2,7 @@ var utils = require('./utils');
 require('./noConflictEditedDeps/bootstrap');
 var eModal = require('./eModal-hacked')();
 var JSON2 = require('JSON2');
-//var pym = require('pym.js');
+
 var $ = global.ds$ || alert("FATAL: global.ds$ is null!");
 var domSetup = utils.DomSetup();
 var Docusign = function Docusign(options) {
@@ -39,6 +39,7 @@ var Docusign = function Docusign(options) {
     var hostBaseUrl = null;
     var isDocSUser = true;
     var iframeModalClose = null;
+    var signAndSendNewEnvelopeId = null;
     var tmpls = utils.TemplateUtils({
         mountpoint: "/docusign/",
         temaplatePath: "main/templates/"
@@ -207,9 +208,16 @@ var Docusign = function Docusign(options) {
                     if (payload.envelopeId) {
                         showEnvelopeSummary(payload.envelopeId);
                     } else {
-                        setTimeout(function() {
-                            finishSigningSession();
-                        }, 1300);
+                        //use closure var signAndSendNewEnvelopeId stored in startSignAndSend
+                        if (signAndSendNewEnvelopeId) {
+                            showEnvelopeSummary(signAndSendNewEnvelopeId);
+                        } else {
+                            gwl.grrr({
+                                msg: "Error: After send event without envelope id available",
+                                type: "danger",
+                                displaySec: 3
+                            });
+                        }
                     }
                 }
                 // if (isEnvelopeId === true) {
@@ -230,24 +238,27 @@ var Docusign = function Docusign(options) {
                     displaySec: 3
                 });
             }
-    
+            spin.stop();
             return ajx.ajaxGet(getEndPoint() + "getEnvelopeSummary", {
                 userLoginId: docuSignOnBehalfOfUser.userLoginId,
                 docuSignUserEmail: docuSignOnBehalfOfUser.email,
                 tenantKey: tenantKey,
                 envelopeId: envelopeId
             }).then(function(data) {
-           
                 if (debugging) console.log("response: " + JSON2.stringify(data));
-                return tmpls.renderExtTemplate({
+
+                return tmpls.renderExtTemplateStr({
                     name: 'envelopeSummary',
-                    selector: targetDiv,
                     data: data
                 });
+            }).then(function(envelopeSummaryHtml) {
+               return Promise.resolve(eModal.alert({message: envelopeSummaryHtml, buttons: false}, "New envelope Sent"));
             }).then(function() {
-                setTimeout(function() {
+               setTimeout(function() {
                     finishSigningSession();
                 }, 1300);
+            }).then(function() {
+                
             })
             if (debugging) console.log("showEnvelopeSummary called!");
         },
@@ -296,11 +307,15 @@ var Docusign = function Docusign(options) {
             }
             request.RecipientModels.push(recipient);
             spin.start();
-            return ajx.ajaxPostJson(getEndPoint() + 'autoPositionedSigner', request).then(function(data) {
+            return ajx.ajaxPostJson(getEndPoint() + 'autoPositionedSigner', request)
+            .then(function(data) {
                 if (debugging) console.log("setupDocumentSend response " + JSON2.stringify(data))
                 if (data.status === "success") {
                     spin.stop();
-                    return setupEmbeddedView(data.response, "Sender Sign Before Send");
+                    var senderResult = JSON.parse(data.response);
+                    //for sign and send mode we need to capture the envelopeId here so that we can use it later
+                    signAndSendNewEnvelopeId = senderResult.envelopeId;
+                    return setupEmbeddedView(senderResult.senderRecipientUrl, "Sender Sign Before Send");
                 } else {
                     spin.stop();
                     gwl.grrr({
@@ -311,6 +326,7 @@ var Docusign = function Docusign(options) {
                     console.error("failed with cause: " + data.response);
                     return null;
                 }
+                if (debugging) console.log("signAndSendNewEnvelopeId: "+signAndSendNewEnvelopeId);
             });
         },
         showSignAndSendModal = function showSignAndSendModal(docName, emailSubject, emailBody, docUrlOrPath, mime) {
@@ -328,6 +344,7 @@ var Docusign = function Docusign(options) {
                 name: "signAndSendModalBody",
                 data: docuSignOnBehalfOfUser
             }).then(function(bodyHtml) {
+                signAndSendNewEnvelopeId = null;
                 eModal.startSignAndSendDialogCustom({
                     title: 'Recipient Details',
                     html: bodyHtml,
@@ -398,7 +415,11 @@ var Docusign = function Docusign(options) {
             });
         },
         setupEmbeddedView = function setupEmbeddedView(url, modeltitle) {
-            return Promise.resolve(eModal.iframe(url, modeltitle)).then(function(modalCloseFuction) {
+            if (debugging) console.log("signAndSendNewEnvelopeId: "+signAndSendNewEnvelopeId);
+            return Promise.resolve(eModal.iframe(url, modeltitle))
+            .then(function(modalCloseFuction) {
+                spin.stop();
+                if (debugging) console.log("signAndSendNewEnvelopeId: "+signAndSendNewEnvelopeId);
                 iframeModalClose = modalCloseFuction;
                 // var loadNum = 0;
                 // $("#emodal-hacked-iframe").on('load', function(e) {

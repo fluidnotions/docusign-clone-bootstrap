@@ -1,43 +1,60 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>server-side-pagination</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="/docusign/tableAssets/bootstrap-table.min.css">
-    <link rel="stylesheet" href="/docusign/tableAssets/bootstrap-table.min.css">
-    <link rel="stylesheet" href="/docusign/tableAssets/bootstrap.min.css">
-    <link rel="stylesheet" href="/docusign/tableAssets/bootstrap-table.min.css">
-    <link rel="stylesheet" href="/docusign/tableAssets/examples.css">
-    <script src="/docusign/tableAssets/jquery.min.js"></script>
-    <script src="/docusign/tableAssets/bootstrap.min.js"></script>
-    <script src="/docusign/tableAssets/bootstrap-table.min.js"></script>
-    <script src="/docusign/tableAssets/ga.js"></script>
-</head>
-<body>
-    <div class="container">
-        <h1>Envelope Status</h1>
-        <table id="table"
-               data-toggle="table"
-               data-url="/docusign-component/control/getEnvelopeStatus"
-               data-height="400"
-               data-side-pagination="server"
-               data-pagination="true"
-               data-page-list="[5, 10, 20, 50, 100, 200]"
-               data-search="true">
-            <thead>
-            <tr>
-                <th data-field="envelopeId">ID</th>
-                <th data-field="status">Status</th>
-                <th data-field="statusChangedDateTime">Item Price</th>
-            </tr>
-            </thead>
-        </table>
-    </div>
-<script>
-    var $table = $('#table');
+    <head>
+        <title>
+            Envelope Status
+        </title>
+        <meta charset="utf-8">
+        <link href="/docusign/tableAssets/bootstrap-table.min.css" rel="stylesheet">
+        <link href="/docusign/tableAssets/bootstrap-table.min.css" rel="stylesheet">
+        <link href="/docusign/tableAssets/bootstrap.min.css" rel="stylesheet">
+        <link href="/docusign/tableAssets/bootstrap-table.min.css" rel="stylesheet">
+        <link href="/docusign/tableAssets/examples.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <h1>
+                Envelope Status
+            </h1>
+            <table id="envTbl"></table>
+        </div>
+        <script>
+        </script>
+        <script src="/docusign/tableAssets/jquery.min.js">
+        </script>
+        <script src="/docusign/tableAssets/bootstrap.min.js">
+        </script>
+        <script src="/docusign/tableAssets/bootstrap-table.js">
+        </script>
+        <script>
+            $("#main_body_section").css("height:800px");
+            var $table = $('#envTbl');
+            $table.bootstrapTable({
+              url: '/docusign-component/control/getEnvelopeStatus',
+              paginationVAlign: "top",
+              pagination: true,
+              pageSize: 10,
+              pageNumber: 1,
+              search: true, 
+              columns:  [{ field:"senderUserLoginId", title:"user login" },
+                         { field:"envelopeEmailSubject", title:"subject" },
+                         { field:"envelopeStatus", title:"envelope" },
+                         { field:"statusChangedDateTime", title:"changed" },
+                         { field:"firstRecipientName", title:"recipient name" },
+                         { field:"firstRecipientStatus", title:"status" },
+                         { field:"firstRecipientSignedDateTime", title:"signed" },
+                         { field:"firstRecipientDeliveredDateTime", title:"delivered" },
+                         { field:"secondRecipientName", title:"recipient name" },
+                         { field:"secondRecipientStatus", title:"status" },
+                         { field:"secondRecipientSignedDateTime", title:"signed" },
+                         { field:"secondRecipientDeliveredDateTime", title:"delivered" }]
+          });
+          //keep data fresh
+          setInterval(function(){  
+            console.log("refresh envolpe status table");
+            $table.bootstrapTable("refresh", {silent: true});
 
-    $(function () {
-    });
-</script>
-</body>
+          }, 5000);
+        </script>
+    </body>
 </html>

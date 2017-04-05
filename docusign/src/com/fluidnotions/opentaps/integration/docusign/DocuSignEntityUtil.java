@@ -21,6 +21,7 @@ import org.ofbiz.entity.transaction.TransactionUtil;
 
 import com.docusign.esignature.json.Envelope;
 import com.docusign.esignature.json.EnvelopeInformation;
+import com.docusign.esign.model.Signer;
 import com.fluidnotions.docusign.models.AuthenticatingUser;
 import com.fluidnotions.docusign.models.DocuSignUser;
 
@@ -205,7 +206,7 @@ public class DocuSignEntityUtil {
 		//Debug.logInfo("OTUtil storeEnvelopeUpdates: " + envelopes.size(), DocuSignEntityUtil.class.getName());
 
 		Delegator delegator = getTenantDelegator(tenantKey);
-		List<GenericValue> values = new ArrayList<GenericValue>();
+//		List<GenericValue> values = new ArrayList<GenericValue>();
 		 // need a nested transaction to insure failures to not bubble up and
         // prevent a response
         Transaction parentTx = null;
@@ -242,14 +243,18 @@ public class DocuSignEntityUtil {
 
                         GenericValue gv = delegator.makeValue("DocuSignEnvelope",
                                 updateEntity);
-                        values.add(gv);
+//                        values.add(gv);
+                        delegator.store(gv);
 
                     }catch (Exception ex) {
                         ex.printStackTrace();
                     } 
                 }
-                
-                delegator.storeAll(values);
+//                This is different than the normal store method in that the store method only does an update, 
+//                while the storeAll method checks to see if each entity exists, then either does an insert or an 
+//                update as appropriate. 
+//				  NOTE: since we only want to update already existing envolopes created after integration -- we can't use this!
+//                delegator.storeAll(values);
 
                 
             } catch (GenericEntityException e) {
@@ -304,6 +309,77 @@ public class DocuSignEntityUtil {
 		}
 
 		return tenantDelegator != null ? tenantDelegator : delegator;
+	}
+
+	public static void storeEnvelopeSignerStatusUpdates(String tenantKey, String envelopeId, List<Signer> signers) {
+		Delegator delegator = getTenantDelegator(tenantKey);
+		List<GenericValue> values = new ArrayList<GenericValue>();
+		 // need a nested transaction to insure failures to not bubble up and
+        // prevent a response
+        Transaction parentTx = null;
+        boolean beganTransaction = false;
+
+        try {
+            try {
+                parentTx = TransactionUtil.suspend();
+            } catch (GenericTransactionException e) {
+                Debug.logError(e, "Could not suspend transaction: " + e.getMessage(), module);
+            }
+
+            try {
+                beganTransaction = TransactionUtil.begin();
+                for (Signer s : signers) {
+                    try {
+                        Debug.logInfo("storeEnvelopeSignerStatusUpdates: EnvelopeId: " + envelopeId,
+                                DocuSignEntityUtil.class.getName());
+
+                        Map<String, String> updateEntity = new HashMap<String, String>();
+                        updateEntity.put("envelopeId", envelopeId);
+                        updateEntity.put("isBulkRecipient", s.getIsBulkRecipient());
+                        updateEntity.put("name", s.getName());
+                        updateEntity.put("email", s.getEmail());
+                        updateEntity.put("recipientId", s.getRecipientId());
+                        updateEntity.put("recipientIdGuid", s.getRecipientIdGuid());
+                        updateEntity.put("requireIdLookup", s.getRequireIdLookup());
+                        updateEntity.put("userId", s.getUserId());
+                        updateEntity.put("routingOrder", s.getRoutingOrder());
+                        updateEntity.put("status", s.getStatus());
+                        updateEntity.put("signedDateTime", s.getSignedDateTime());
+                        updateEntity.put("deliveredDateTime", s.getDeliveredDateTime());
+                        
+                        GenericValue gv = delegator.makeValue("DocuSignEnvelopeSignerStatus",
+                                updateEntity);
+                        values.add(gv);
+
+                    }catch (Exception ex) {
+                        ex.printStackTrace();
+                    } 
+                }
+                
+                delegator.storeAll(values);
+
+                
+            } catch (GenericEntityException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    TransactionUtil.commit(beganTransaction);
+                } catch (GenericTransactionException e) {
+                    Debug.logError(e, "Could not commit nested transaction: " + e.getMessage(), module);
+                }
+            }
+        } finally {
+            // resume/restore parent transaction
+            if (parentTx != null) {
+                try {
+                    TransactionUtil.resume(parentTx);
+                    Debug.logVerbose("Resumed the parent transaction.", module);
+                } catch (GenericTransactionException e) {
+                    Debug.logError(e, "Could not resume parent nested transaction: " + e.getMessage(), module);
+                }
+            }
+        }
+		
 	}
 
 }

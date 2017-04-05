@@ -335,6 +335,12 @@ public class DocuSignService {
         return client.getEnvelopesStatusChanged(fromDateTime);
 
     }
+    
+    public String getDetailUri(String tenantKey, String endpoint) throws MalformedURLException, IOException, DocuSigAPIException {
+    	 DocuSignClient client = tenantClient(tenantKey);
+         client.login();
+         return client.getUri(endpoint);
+    }
 
     // check for envelope status changes every 5 minutes with a 1 minute overlap
     // to ensure that no

@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.ofbiz.base.util.Debug;
 
 import com.docusign.esign.api.AuthenticationApi;
 import com.docusign.esign.api.EnvelopesApi;
@@ -26,7 +27,6 @@ import com.docusign.esign.model.FullName;
 import com.docusign.esign.model.LoginInformation;
 import com.docusign.esign.model.RecipientViewRequest;
 import com.docusign.esign.model.Recipients;
-import com.docusign.esign.model.ReturnUrlRequest;
 import com.docusign.esign.model.SignHere;
 import com.docusign.esign.model.Signer;
 import com.docusign.esign.model.Tabs;
@@ -37,6 +37,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fluidnotions.docusign.models.RecipientModel;
+import com.google.gson.Gson;
 
 public class AutoPositionedSignerHelper {
 
@@ -96,11 +97,13 @@ public class AutoPositionedSignerHelper {
 				lly = new Float(doc.getCropBox().getLowerLeftY()).doubleValue();
 				wdt = new Float(doc.getCropBox().getWidth()).doubleValue();
 				hdt = new Float(doc.getCropBox().getHeight()).doubleValue();
-				System.out.println("llx: " + llx + ", lly: " + lly + ", wdt: " + wdt);
+				Debug.log("llx: " + llx + ", lly: " + lly + ", wdt: " + wdt);
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
 			} catch (IOException e1) {
 				e1.printStackTrace();
+			}finally{
+				pdfDocObject.close();
 			}
 
 			// add a document to the envelope
@@ -114,7 +117,7 @@ public class AutoPositionedSignerHelper {
 			docs.add(doc);
 			envDef.setDocuments(docs);
 			String lastPageNumber = new Integer(pdfDocObject.getNumberOfPages()).toString();
-			System.out.println("lastPageNumber: " + lastPageNumber);
+			Debug.log("lastPageNumber: " + lastPageNumber);
 			envDef.setRecipients(new Recipients());
 			envDef.getRecipients().setSigners(new ArrayList<Signer>());
 
@@ -144,7 +147,7 @@ public class AutoPositionedSignerHelper {
 			envDef.setStatus("sent");
 
 			try {
-				System.out.println(getObjectMapper().writeValueAsString(envDef));
+				Debug.log(getObjectMapper().writeValueAsString(envDef));
 			} catch (JsonProcessingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -156,7 +159,7 @@ public class AutoPositionedSignerHelper {
 			// call the createEnvelope() API
 			EnvelopeSummary envelopeSummary = envelopesApi.createEnvelope(accountId, envDef);
 
-			System.out.println("EnvelopeSummary: " + envelopeSummary);
+			Debug.log("EnvelopeSummary: " + envelopeSummary);
 
 			RecipientViewRequest returnUrl2 = new RecipientViewRequest();
 			returnUrl2.setReturnUrl(afterSendRedirectUrl);
@@ -172,10 +175,16 @@ public class AutoPositionedSignerHelper {
 //			// call the CreateRecipientView API
 			ViewUrl recipientView = envelopesApi.createRecipientView(accountId, envelopeSummary.getEnvelopeId(), returnUrl2);
 
-			return recipientView.getUrl();
+			Map<String, String> senderResult = new HashMap<String, String>();
+			senderResult.put("senderRecipientUrl", recipientView.getUrl());
+//			added envelopeId for after dialog/iframe summary call which also creates new initial envelope record
+			senderResult.put("envelopeId", envelopeSummary.getEnvelopeId());
+			
+			return new Gson().toJson(senderResult);
 
 		} catch (com.docusign.esign.client.ApiException ex) {
-			System.out.println("Exception: " + ex);
+			Debug.log("Exception: " + ex);
+		
 		}
 		return null;
 	}
