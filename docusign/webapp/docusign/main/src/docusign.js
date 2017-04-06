@@ -444,43 +444,6 @@ var Docusign = function Docusign(options) {
                 spin.stop();
             }, 1300);
         },
-        showAddUserToTenantAccForm = function showAddUserToTenantAccForm() {
-            var actioned = false;
-            return tmpls.renderExtTemplate({
-                name: 'addUserToAccountWrapper',
-                selector: targetDiv
-            }).then(function() {
-                if (debugging) console.log("top of showAddUserToTenantAccForm func. actioned: " + actioned);
-                //suggest and fill all form fields
-                return tmpls.renderExtTemplate({
-                    name: 'addUserToAccountForm',
-                    selector: "#addNewUserForm"
-                })
-            }).then(function() {
-                $('docusign').on('click', '#addUserBtn', function(e) {
-                    e.preventDefault();
-                    var nameValues = $("#addDocusignUserForm").serializeArray();;
-                    var jsonReq = {};
-                    $.each(nameValues, function(index, pairs) {
-                        jsonReq[pairs.name] = pairs.value;
-                    });
-                    if (debugging) console.log(JSON2.stringify(jsonReq));
-                    var evt = e;
-                    //FIXME seems to get called twice, casing errors duplicate user
-                    if (actioned === false) {
-                        if (debugging) console.log("actioned: " + actioned + ", addUserToTenantAcc(jsonReq) about to be called")
-                        addUserToTenantAcc(jsonReq);
-                        actioned = true;
-                        if (debugging) console.log("after call to addUserToTenantAcc(jsonReq). actioned is now " + actioned);
-                    }
-                });
-                $('docusign').on('click', '#addUserBtn-clear', function(e) {
-                    e.preventDefault();
-                    showAddUserToTenantAccForm();
-                    spin.stop();
-                });
-            });
-        },
         // showAddUserToTenantAccForm = function showAddUserToTenantAccForm() {
         //     var actioned = false;
         //     return tmpls.renderExtTemplate({
@@ -488,30 +451,11 @@ var Docusign = function Docusign(options) {
         //         selector: targetDiv
         //     }).then(function() {
         //         if (debugging) console.log("top of showAddUserToTenantAccForm func. actioned: " + actioned);
-        //         var addNewUserForm = {
-        //             inputFieldArray: [{
-        //                 name: "firstName",
-        //                 type: "text"
-        //             }, {
-        //                 name: "lastName",
-        //                 type: "text"
-        //             }, {
-        //                 name: "email",
-        //                 type: "email"
-        //             }, {
-        //                 name: "userLoginId",
-        //                 type: "text"
-        //             }],
-        //             formId: "addDocusignUserForm",
-        //             formButtonId: "addUserBtn",
-        //             formButtonName: "Add",
-        //             formButtonClasses: "btn btn-xl btn-primary pull-right",
-        //             lookupUrl: "/docusign-component/control/addDocusignUserSuggestFillForm",
-        //             targetSelector: "#addNewUserForm",
-        //             templatesFolderPath: "/docusign/main/templates/"
-        //         };
         //         //suggest and fill all form fields
-        //         return formBuilder.build(addNewUserForm);
+        //         return tmpls.renderExtTemplate({
+        //             name: 'addUserToAccountForm',
+        //             selector: "#addNewUserForm"
+        //         })
         //     }).then(function() {
         //         $('docusign').on('click', '#addUserBtn', function(e) {
         //             e.preventDefault();
@@ -537,6 +481,62 @@ var Docusign = function Docusign(options) {
         //         });
         //     });
         // },
+        showAddUserToTenantAccForm = function showAddUserToTenantAccForm() {
+            var actioned = false;
+            return tmpls.renderExtTemplate({
+                name: 'addUserToAccountWrapper',
+                selector: targetDiv
+            }).then(function() {
+                if (debugging) console.log("top of showAddUserToTenantAccForm func. actioned: " + actioned);
+                var addNewUserForm = {
+                    inputFieldArray: [{
+                        name: "firstName",
+                        type: "text"
+                    }, {
+                        name: "lastName",
+                        type: "text"
+                    }, {
+                        name: "email",
+                        type: "email"
+                    }, {
+                        name: "userLoginId",
+                        type: "text"
+                    }],
+                    formId: "addDocusignUserForm",
+                    formButtonId: "addUserBtn",
+                    formButtonName: "Add",
+                    formButtonClasses: "btn btn-xl btn-primary pull-right",
+                    lookupUrl: "/docusign-component/control/addDocusignUserSuggestFillForm",
+                    targetSelector: "#addNewUserForm",
+                    templatesFolderPath: "/docusign/main/templates/"
+                };
+                //suggest and fill all form fields
+                return formBuilder.build(addNewUserForm);
+            }).then(function() {
+                $('docusign').on('click', '#addUserBtn', function(e) {
+                    e.preventDefault();
+                    var nameValues = $("#addDocusignUserForm").serializeArray();;
+                    var jsonReq = {};
+                    $.each(nameValues, function(index, pairs) {
+                        jsonReq[pairs.name] = pairs.value;
+                    });
+                    if (debugging) console.log(JSON2.stringify(jsonReq));
+                    var evt = e;
+                    //FIXME seems to get called twice, casing errors duplicate user
+                    if (actioned === false) {
+                        if (debugging) console.log("actioned: " + actioned + ", addUserToTenantAcc(jsonReq) about to be called")
+                        addUserToTenantAcc(jsonReq);
+                        actioned = true;
+                        if (debugging) console.log("after call to addUserToTenantAcc(jsonReq). actioned is now " + actioned);
+                    }
+                });
+                $('docusign').on('click', '#addUserBtn-clear', function(e) {
+                    e.preventDefault();
+                    showAddUserToTenantAccForm();
+                    spin.stop();
+                });
+            });
+        },
         addUserToTenantAcc = function addUserToTenantAcc(jsonRequestData) {
             //add tenant key
             jsonRequestData.tenantKey = tenantKey;
@@ -712,19 +712,34 @@ var Docusign = function Docusign(options) {
                     });
                 }
             });
+        },
+        //options => {formId:"exampleId", formName:"exampleFormName"}
+        formInputToQueryStr = function formInputToQueryStr(options){
+            var form = null;
+            if(options.formId){
+                form = $("#"+options.formId);
+            }else if(options.formName){
+                 form = $('form[name="'+options.formName+'"]');
+            }
+            var serial = form.serialize();
+            console.log("serial: "+serial);
+            return serial;
         }
+
     publicInterface = {
         init: init,
         //action methods
         setupDocumentSendEmbeddedView: setupDocumentSendEmbeddedView,
         disableUser: disableUser,
         addUserToTenantAcc: addUserToTenantAcc,
+        formInputToQueryStr: formInputToQueryStr,
         //poc form show methods
         showSetupDocumentForm: showSetupDocumentForm,
         showAddUserToTenantAccForm: showAddUserToTenantAccForm,
         showDisableUserForm: showDisableUserForm,
         showEnvelopeStatusTable: showEnvelopeStatusTable,
-        showOtherTests: showOtherTests
+        showOtherTests: showOtherTests,
+        formInputToQueryStr: formInputToQueryStr
     }
     return publicInterface;
 }
