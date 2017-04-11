@@ -529,7 +529,7 @@ var Docusign = function Docusign(options) {
                 //suggest and fill all form fields
                 return formBuilder.build(addNewUserForm);
             }).then(function() {
-                $(document).on('click', '#addUserBtn', function(e) {
+                $("#addNewUserForm").on('click', '#addUserBtn', function(e) {
                     e.preventDefault();
                     var nameValues = $("#addDocusignUserForm").serializeArray();
                     var jsonReq = {};
@@ -546,7 +546,7 @@ var Docusign = function Docusign(options) {
                         if (debugging) console.log("after call to addUserToTenantAcc(jsonReq). actioned is now " + actioned);
                     }
                 });
-                $(document).on('click', '#addUserBtn-clear', function(e) {
+                $("#addNewUserForm").on('click', '#addUserBtn-clear', function(e) {
                     e.preventDefault();
                     showAddUserToTenantAccForm();
                     spin.stop();
@@ -587,43 +587,6 @@ var Docusign = function Docusign(options) {
                 spin.stop();
             });
         },
-        // showDisableUserForm = function showDisableUserForm() {
-        //     if (debugging) console.log("showDisableUserForm called.");
-        //     var actioned = false;
-        //     tmpls.renderExtTemplate({
-        //         name: 'disableUserFormWrapper',
-        //         selector: targetDiv
-        //     }).then(function() {
-        //         //suggest and fill all form fields
-        //         return tmpls.renderExtTemplate({
-        //             name: 'disableUserForm',
-        //             selector: '#disableUserForm'
-        //         })
-        //     }).then(function() {
-        //         $('docusign').on('click', '#disableUserBtn', function(e) {
-        //             e.preventDefault();
-        //             //alert("mark");
-        //             if (debugging) console.log('disableUserBtn clicked!');
-        //             var nameValues = $("#disableUserForm").serializeArray();
-        //             var jsonReq = {};
-        //             $.each(nameValues, function(index, pairs) {
-        //                 jsonReq[pairs.name] = pairs.value;
-        //             });
-        //             if (debugging) console.log(JSON2.stringify(jsonReq));
-        //             //FIXME seems to get called twice, casing errors duplicate user
-        //             if (actioned === false) {
-        //                 disableUser(jsonReq);
-        //                 actioned = true;
-        //             }
-        //         });
-        //         $('docusign').on('click', '#disableUserBtn-clear', function(e) {
-        //             e.preventDefault();
-        //             //alert("mark");
-        //             showDisableUserForm();
-        //             spin.stop();
-        //         });
-        //     });
-        // },
         showDisableUserForm = function showDisableUserForm() {
             if (debugging) console.log("showDisableUserForm called.");
             var actioned = false;
@@ -658,9 +621,9 @@ var Docusign = function Docusign(options) {
                 return formBuilder.build(disableUserForm);
             }).then(function() {
                 
-                $(document).on('click', '#disableUserBtn', function(e) {
+                $("#disableUserForm").on('click', '#disableUserBtn', function(e) {
                     e.preventDefault();
-                    //alert("mark");
+                    alert("mark");
                     if (debugging) console.log('disableUserBtn clicked!');
                     var nameValues = $("#disableUserForm").serializeArray();
                     var jsonReq = {};
@@ -676,15 +639,14 @@ var Docusign = function Docusign(options) {
                         actioned = true;
                     }
                 });
-                $(document).on('click', '#disableUserBtn-clear', function(e) {
+                $("#disableUserForm").on('click', '#disableUserBtn-clear', function(e) {
                     e.preventDefault();
                     //alert("mark");
                     showDisableUserForm();
                     spin.stop();
                 });
                 $('#disableUserBtn').prop('disabled', true);
-                $(document).on('click', '.cb', function(e) {
-                    e.preventDefault();
+                $("#disableUserForm").on('click', '.cb', function(e) {
                     $('#disableUserBtn').prop('disabled', false);
                 });
             });

@@ -95,35 +95,35 @@
 	<!-- ================== -->
 
 	<request-map uri="getTenantdynamicDocDownloadSuffix">
-		<security https="true" auth="true"/>
+		<security https="false" auth="true"/>
 		<event type="json" invoke="docusign.util.getTenantDocDwnldSuffix"/>
 		<response name="success" type="none"/>
 		<response name="error" type="none"/>
 	</request-map>
 
 	<request-map uri="getHostBaseUrl">
-		<security https="true" auth="true"/>
+		<security https="false" auth="true"/>
 		<event type="json" invoke="docusign.util.getHostBaseUrl"/>
 		<response name="success" type="none"/>
 		<response name="error" type="none"/>
 	</request-map>
 
 	<request-map uri="getEnvelopeStatus">
-		<security https="true" auth="false"/>
+		<security https="false" auth="false"/>
 		<event type="java" path="com.groupfio.docusign.events.TableEnvelopeEvents" invoke="getEnvelopeStatusData"/>
 		<response name="success" type="none"/>
 		<response name="error" type="none"/>
 	</request-map>
 
 	<request-map uri="addDocusignUserSuggestFillForm">
-		<security https="true" auth="true"/>
+		<security https="false" auth="true"/>
 		<event type="java" path="com.groupfio.docusign.events.DocusignSuggestEvents" invoke="addDocusignUserSuggest"/>
 		<response name="success" type="none"/>
 		<response name="error" type="none"/>
 	</request-map>
 
 	<request-map uri="disableDocusignUserSuggestFillForm">
-		<security https="true" auth="true"/>
+		<security https="false" auth="true"/>
 		<event type="java" path="com.groupfio.docusign.events.DocusignSuggestEvents" invoke="disableDocusignUserSuggest"/>
 		<response name="success" type="none"/>
 		<response name="error" type="none"/>

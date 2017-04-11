@@ -139,12 +139,12 @@ module.exports = function FormBuilderPlus() {
             var elId = null;
             var fieldName = null;
             // for some reason this only works on document tried other selector combos
-            $(document).on('focus', '.formBuilderPlus-input', function(event) {
+            $(options.targetSelector).on('focus', '.formBuilderPlus-input', function(event) {
                 if (debug) console.log("focus event on id: " + event.currentTarget.id + " hiding .suggest");
                 $(".suggest-menu").hide();
             });
             // for some reason this only works on document tried other selector combos
-            $(document).on('keyup', '.formBuilderPlus-input', function(event) {
+            $(options.targetSelector).on('keyup', '.formBuilderPlus-input', function(event) {
                 fieldName = event.currentTarget.name;
                 if (debug) console.log("keyup event on field with name: " + fieldName);
                 //also the id of element so we can extract val() for searchTerm
@@ -173,7 +173,7 @@ module.exports = function FormBuilderPlus() {
                 });
             });
             // for some reason this only works on document tried other selector combos
-            $(document).on("click", ".suggest-menu .suggestion", function(event) {
+            $(options.targetSelector).on("click", ".suggest-menu .suggestion", function(event) {
                 var arrObjIndex = event.currentTarget.id.split('-')[1];
                 if (debug) console.log("click event on .suggestion item index: " + arrObjIndex);
                 if (debug) console.log("selected index: " + arrObjIndex);

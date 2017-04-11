@@ -38519,7 +38519,7 @@ var Docusign = function Docusign(options) {
                 //suggest and fill all form fields
                 return formBuilder.build(addNewUserForm);
             }).then(function() {
-                $(document).on('click', '#addUserBtn', function(e) {
+                $("#addNewUserForm").on('click', '#addUserBtn', function(e) {
                     e.preventDefault();
                     var nameValues = $("#addDocusignUserForm").serializeArray();
                     var jsonReq = {};
@@ -38536,7 +38536,7 @@ var Docusign = function Docusign(options) {
                         if (debugging) console.log("after call to addUserToTenantAcc(jsonReq). actioned is now " + actioned);
                     }
                 });
-                $(document).on('click', '#addUserBtn-clear', function(e) {
+                $("#addNewUserForm").on('click', '#addUserBtn-clear', function(e) {
                     e.preventDefault();
                     showAddUserToTenantAccForm();
                     spin.stop();
@@ -38577,43 +38577,6 @@ var Docusign = function Docusign(options) {
                 spin.stop();
             });
         },
-        // showDisableUserForm = function showDisableUserForm() {
-        //     if (debugging) console.log("showDisableUserForm called.");
-        //     var actioned = false;
-        //     tmpls.renderExtTemplate({
-        //         name: 'disableUserFormWrapper',
-        //         selector: targetDiv
-        //     }).then(function() {
-        //         //suggest and fill all form fields
-        //         return tmpls.renderExtTemplate({
-        //             name: 'disableUserForm',
-        //             selector: '#disableUserForm'
-        //         })
-        //     }).then(function() {
-        //         $('docusign').on('click', '#disableUserBtn', function(e) {
-        //             e.preventDefault();
-        //             //alert("mark");
-        //             if (debugging) console.log('disableUserBtn clicked!');
-        //             var nameValues = $("#disableUserForm").serializeArray();
-        //             var jsonReq = {};
-        //             $.each(nameValues, function(index, pairs) {
-        //                 jsonReq[pairs.name] = pairs.value;
-        //             });
-        //             if (debugging) console.log(JSON2.stringify(jsonReq));
-        //             //FIXME seems to get called twice, casing errors duplicate user
-        //             if (actioned === false) {
-        //                 disableUser(jsonReq);
-        //                 actioned = true;
-        //             }
-        //         });
-        //         $('docusign').on('click', '#disableUserBtn-clear', function(e) {
-        //             e.preventDefault();
-        //             //alert("mark");
-        //             showDisableUserForm();
-        //             spin.stop();
-        //         });
-        //     });
-        // },
         showDisableUserForm = function showDisableUserForm() {
             if (debugging) console.log("showDisableUserForm called.");
             var actioned = false;
@@ -38648,9 +38611,9 @@ var Docusign = function Docusign(options) {
                 return formBuilder.build(disableUserForm);
             }).then(function() {
                 
-                $(document).on('click', '#disableUserBtn', function(e) {
+                $("#disableUserForm").on('click', '#disableUserBtn', function(e) {
                     e.preventDefault();
-                    //alert("mark");
+                    alert("mark");
                     if (debugging) console.log('disableUserBtn clicked!');
                     var nameValues = $("#disableUserForm").serializeArray();
                     var jsonReq = {};
@@ -38666,15 +38629,14 @@ var Docusign = function Docusign(options) {
                         actioned = true;
                     }
                 });
-                $(document).on('click', '#disableUserBtn-clear', function(e) {
+                $("#disableUserForm").on('click', '#disableUserBtn-clear', function(e) {
                     e.preventDefault();
                     //alert("mark");
                     showDisableUserForm();
                     spin.stop();
                 });
                 $('#disableUserBtn').prop('disabled', true);
-                $(document).on('click', '.cb', function(e) {
-                    e.preventDefault();
+                $("#disableUserForm").on('click', '.cb', function(e) {
                     $('#disableUserBtn').prop('disabled', false);
                 });
             });
@@ -39576,12 +39538,12 @@ module.exports = function FormBuilderPlus() {
             var elId = null;
             var fieldName = null;
             // for some reason this only works on document tried other selector combos
-            $(document).on('focus', '.formBuilderPlus-input', function(event) {
+            $(options.targetSelector).on('focus', '.formBuilderPlus-input', function(event) {
                 if (debug) console.log("focus event on id: " + event.currentTarget.id + " hiding .suggest");
                 $(".suggest-menu").hide();
             });
             // for some reason this only works on document tried other selector combos
-            $(document).on('keyup', '.formBuilderPlus-input', function(event) {
+            $(options.targetSelector).on('keyup', '.formBuilderPlus-input', function(event) {
                 fieldName = event.currentTarget.name;
                 if (debug) console.log("keyup event on field with name: " + fieldName);
                 //also the id of element so we can extract val() for searchTerm
@@ -39610,7 +39572,7 @@ module.exports = function FormBuilderPlus() {
                 });
             });
             // for some reason this only works on document tried other selector combos
-            $(document).on("click", ".suggest-menu .suggestion", function(event) {
+            $(options.targetSelector).on("click", ".suggest-menu .suggestion", function(event) {
                 var arrObjIndex = event.currentTarget.id.split('-')[1];
                 if (debug) console.log("click event on .suggestion item index: " + arrObjIndex);
                 if (debug) console.log("selected index: " + arrObjIndex);

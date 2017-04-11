@@ -28,113 +28,109 @@ import com.google.gson.GsonBuilder;
 import com.groupfio.docusign.OTUtil;
 
 public class DocusignSuggestEvents {
-	
-    private static final String module = null;
-    private static Gson gson = new GsonBuilder().create();
-     
-    @SuppressWarnings("deprecation")
-    public static String disableDocusignUserSuggest(HttpServletRequest request, HttpServletResponse response) {
-	Delegator delegator = (Delegator) request.getAttribute("delegator");
 
-	String fieldName = (String) request.getParameter("fieldName");
-	String searchTerm = (String) request.getParameter("searchTerm");
-	
-	
-	
-	try {
+	private static final String module = null;
+	private static Gson gson = new GsonBuilder().create();
 
-	    EntityCondition[] suggestConditions = { 
-		    new EntityExpr(fieldName, true, EntityOperator.LIKE, searchTerm + "%", true),//ignore case
+	@SuppressWarnings("deprecation")
+	public static String disableDocusignUserSuggest(HttpServletRequest request, HttpServletResponse response) {
+		Delegator delegator = (Delegator) request.getAttribute("delegator");
 
-	    EntityCondition.makeCondition("email", EntityOperator.NOT_EQUAL,null),
-	    EntityCondition.makeCondition("enabled", EntityOperator.EQUALS,"Y"),
-	    EntityCondition.makeCondition("contactMechPurposeTypeId", EntityOperator.EQUALS,"PRIMARY_EMAIL"),
-	    EntityCondition.makeCondition("name", EntityOperator.NOT_EQUAL, null),
-            EntityCondition.makeCondition("docuSignUserId", EntityOperator.NOT_EQUAL, null),};
+		String fieldName = (String) request.getParameter("fieldName");
+		String searchTerm = (String) request.getParameter("searchTerm");
 
+		try {
 
-	    
-	    List<EntityCondition> exprs =  new ArrayList<EntityCondition>(Arrays.asList(suggestConditions));
+			EntityCondition[] suggestConditions = {
+					new EntityExpr(fieldName, true, EntityOperator.LIKE, searchTerm + "%", true),
+					EntityCondition.makeCondition("enabled", EntityOperator.EQUALS, "Y"),
+					EntityCondition.makeCondition("contactMechPurposeTypeId", EntityOperator.EQUALS, "PRIMARY_EMAIL"),
+					EntityCondition.makeCondition("name", EntityOperator.NOT_EQUAL, null),
+					EntityCondition.makeCondition("docuSignUserId", EntityOperator.NOT_EQUAL, null) };
 
-	    EntityCondition combined = EntityCondition.makeCondition(exprs, EntityOperator.AND);
+			List<EntityCondition> exprs = new ArrayList<EntityCondition>(Arrays.asList(suggestConditions));
 
-	    List<GenericValue> resultList = delegator.findByConditionCache("DocusignUserLoginPersonNameAndEmail", combined, null, UtilMisc.toList("purposeFromDate ASC"));
-	    
-	    if (UtilValidate.isNotEmpty(resultList)) {
-		Set<String> ensureUnque = new HashSet<String>();
-		List<Map<String, Object>> resultEntityArray = new ArrayList<Map<String, Object>>();
-		for (GenericValue gv : resultList) {
-		    if(ensureUnque.add(gv.getString("userLoginId"))){
-			resultEntityArray.add(gv.getAllFields());
-		    }
-		    
+			EntityCondition combined = EntityCondition.makeCondition(exprs, EntityOperator.AND);
+
+			List<GenericValue> resultList = delegator.findByConditionCache("DocusignUserLoginPersonNameAndEmail", combined, null,
+					UtilMisc.toList("purposeFromDate ASC"));
+
+			if (UtilValidate.isNotEmpty(resultList)) {
+				Set<String> ensureUnque = new HashSet<String>();
+				List<Map<String, Object>> resultEntityArray = new ArrayList<Map<String, Object>>();
+				for (GenericValue gv : resultList) {
+					if (ensureUnque.add(gv.getString("userLoginId"))) {
+						resultEntityArray.add(gv.getAllFields());
+					}
+
+				}
+				if (UtilValidate.isNotEmpty(resultEntityArray)) {
+					String jsonStringResult = gson.toJson(resultEntityArray);
+					Debug.logInfo("jsonStringResult: " + jsonStringResult, module);
+					return OTUtil.doJSONResponse(response, jsonStringResult);
+				} else {
+					return OTUtil.doJSONResponse(response, "[]");
+				}
+
+			}
+		} catch (GenericEntityException e) {
+			e.printStackTrace();
+			return "error";
 		}
-		if (UtilValidate.isNotEmpty(resultEntityArray)) {
-		    String jsonStringResult = gson.toJson(resultEntityArray);
-		    Debug.logInfo("jsonStringResult: " + jsonStringResult, module);
-		    return OTUtil.doJSONResponse(response, jsonStringResult);
-		} else {
-		    return OTUtil.doJSONResponse(response, "[]");
-		}
-
-	    }
-	} catch (GenericEntityException e) {
-	    e.printStackTrace();
-	    return "error";
+		return "error";
 	}
-	return "error";
-    }
 
-    @SuppressWarnings("deprecation")
-    public static String addDocusignUserSuggest(HttpServletRequest request, HttpServletResponse response) {
-	Delegator delegator = (Delegator) request.getAttribute("delegator");
+	@SuppressWarnings("deprecation")
+	public static String addDocusignUserSuggest(HttpServletRequest request, HttpServletResponse response) {
+		Delegator delegator = (Delegator) request.getAttribute("delegator");
 
-	String fieldName = (String) request.getParameter("fieldName");
-	String searchTerm = (String) request.getParameter("searchTerm");
-	
-	
-	
-	try {
+		String fieldName = (String) request.getParameter("fieldName");
+		String searchTerm = (String) request.getParameter("searchTerm");
 
-	    EntityCondition[] suggestConditions = { 
-		    new EntityExpr(fieldName, true, EntityOperator.LIKE, searchTerm + "%", true),//ignore case
+		try {
 
-	    EntityCondition.makeCondition("email", EntityOperator.NOT_EQUAL,null),
-	    EntityCondition.makeCondition("firstName", EntityOperator.NOT_EQUAL,null),
-	    EntityCondition.makeCondition("contactMechId", EntityOperator.NOT_EQUAL,null),
-	    EntityCondition.makeCondition("lastName", EntityOperator.NOT_EQUAL,null),
-	    EntityCondition.makeCondition("userLoginId", EntityOperator.NOT_EQUAL,null),
-	    EntityCondition.makeCondition("contactMechPurposeTypeId", EntityOperator.EQUALS,"PRIMARY_EMAIL")};
+			EntityCondition[] suggestConditions = {
+					new EntityExpr(fieldName, true, EntityOperator.LIKE, searchTerm + "%", true),// ignore
+																									// case
 
-	    List<EntityCondition> exprs =  new ArrayList<EntityCondition>(Arrays.asList(suggestConditions));
+					EntityCondition.makeCondition("email", EntityOperator.NOT_EQUAL, null),
+					EntityCondition.makeCondition("firstName", EntityOperator.NOT_EQUAL, null),
+					EntityCondition.makeCondition("contactMechId", EntityOperator.NOT_EQUAL, null),
+					EntityCondition.makeCondition("lastName", EntityOperator.NOT_EQUAL, null),
+					EntityCondition.makeCondition("userLoginId", EntityOperator.NOT_EQUAL, null),
+					EntityCondition.makeCondition("contactMechPurposeTypeId", EntityOperator.EQUALS, "PRIMARY_EMAIL") };
 
-	    EntityCondition combined = EntityCondition.makeCondition(exprs, EntityOperator.AND);
+			List<EntityCondition> exprs = new ArrayList<EntityCondition>(Arrays.asList(suggestConditions));
 
-	    List<GenericValue> resultList = EntityUtil.filterByDate(delegator.findByConditionCache("UserLoginPersonNameAndEmail", combined, null, UtilMisc.toList("fromDate DESC")), true);;
-	    
-	    if (UtilValidate.isNotEmpty(resultList)) {
-		Set<String> ensureUnque = new HashSet<String>();
-		List<Map<String, Object>> resultEntityArray = new ArrayList<Map<String, Object>>();
-		for (GenericValue gv : resultList) {
-		    if(ensureUnque.add(gv.getString("userLoginId"))){
-			resultEntityArray.add(gv.getAllFields());
-		    }
-		    
+			EntityCondition combined = EntityCondition.makeCondition(exprs, EntityOperator.AND);
+
+			List<GenericValue> resultList = EntityUtil.filterByDate(
+					delegator.findByConditionCache("UserLoginPersonNameAndEmail", combined, null, UtilMisc.toList("fromDate DESC")), true);
+			;
+
+			if (UtilValidate.isNotEmpty(resultList)) {
+				Set<String> ensureUnque = new HashSet<String>();
+				List<Map<String, Object>> resultEntityArray = new ArrayList<Map<String, Object>>();
+				for (GenericValue gv : resultList) {
+					if (ensureUnque.add(gv.getString("userLoginId"))) {
+						resultEntityArray.add(gv.getAllFields());
+					}
+
+				}
+				if (UtilValidate.isNotEmpty(resultEntityArray)) {
+					String jsonStringResult = gson.toJson(resultEntityArray);
+					Debug.logInfo("jsonStringResult: " + jsonStringResult, module);
+					return OTUtil.doJSONResponse(response, jsonStringResult);
+				} else {
+					return OTUtil.doJSONResponse(response, "[]");
+				}
+
+			}
+		} catch (GenericEntityException e) {
+			e.printStackTrace();
+			return "error";
 		}
-		if (UtilValidate.isNotEmpty(resultEntityArray)) {
-		    String jsonStringResult = gson.toJson(resultEntityArray);
-		    Debug.logInfo("jsonStringResult: " + jsonStringResult, module);
-		    return OTUtil.doJSONResponse(response, jsonStringResult);
-		} else {
-		    return OTUtil.doJSONResponse(response, "[]");
-		}
-
-	    }
-	} catch (GenericEntityException e) {
-	    e.printStackTrace();
-	    return "error";
+		return "error";
 	}
-	return "error";
-    }
-    
+
 }
