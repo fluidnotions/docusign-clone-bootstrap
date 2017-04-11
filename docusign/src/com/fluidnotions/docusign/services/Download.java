@@ -18,7 +18,7 @@ import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.ofbiz.base.util.Debug;
 import org.springframework.stereotype.Service;
 
-import com.fluidnotions.helper.FluidUtil;
+import com.fluidnotions.opentaps.helper.FluidUtil;
 
 @Service
 public class Download {

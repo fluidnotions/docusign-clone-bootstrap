@@ -2,7 +2,6 @@ var utils = require('./utils');
 require('./noConflictEditedDeps/bootstrap');
 var eModal = require('./eModal-hacked')();
 var JSON2 = require('JSON2');
-
 var $ = global.ds$ || alert("FATAL: global.ds$ is null!");
 var domSetup = utils.DomSetup();
 var Docusign = function Docusign(options) {
@@ -11,8 +10,9 @@ var Docusign = function Docusign(options) {
     var targetDiv = options.targetDiv || "#docusign";
     var iframeTargetDiv = options.iframeTargetDiv || $(targetDiv).parent().parent();
     var spinnerTargetDiv = "#spinner";
-    // var loginUrlKey = options.loginUrlKey || alert("ERROR: loginUrlKey missing");
-    var loginUrlKey = options.loginUrlKey || '111111';
+    var loginUrlKey = options.loginUrlKey || alert("ERROR: loginUrlKey missing");
+    var userLoginId = options.userLoginId;
+    //var loginUrlKey = options.loginUrlKey || '111111';
     var debugging = options.debug || false;
     if (debugging === 'true') {
         debugging = true;
@@ -26,7 +26,6 @@ var Docusign = function Docusign(options) {
     var spin = utils.Spinner();
     var formBuilder = utils.FormBuilder();
     var tenantKey = null;
-    var userLoginId = null;
     var name = null;
     var userEmail = null;
     var afterSendRedirectUrl = "/docusign/afterSentIFrameClose.html";
@@ -49,7 +48,8 @@ var Docusign = function Docusign(options) {
         },
         checkUid = function checkUid(debug) {
             return ajx.ajaxPost("/docusign-component/control/lookupUidInfo", {
-                loginUrlKey: loginUrlKey
+                loginUrlKey: loginUrlKey,
+                userLoginId: userLoginId
             }).then(function(uid) {
                 if (!uid.tenantId) {
                     gwl.grrr({
@@ -171,12 +171,32 @@ var Docusign = function Docusign(options) {
             });
         },
         signhereAction = function signhereAction(mydata) {
+            //  <a 
+            //     data-title="invoice-00000" 
+            //     data-emailSubject="invoice due 00/00/00" 
+            //     data-emailBody="bla bla bla"
+            //     data-dynamicDocUrl="../financials/control/invoice.pdf?invoiceId=15120&reportId=FININVOICE&reportType=application/pdf" 
+            //     data-mime="application/pdf"
+            //     data-mode="signsend" 
+            //     class="signhere btn btn-default pull-left">
+            //         Customize And Send
+            // </a>
             mode = mydata.mode;
-            spin.start();
-            if (mode === "custom") {
-                setupDocumentSendEmbeddedView(mydata.title, mydata.emailSubject, mydata.emailBody, mydata.dynamicDocUrl, mydata.mime);
+            var dynamicDocUrl = null;
+            //if there is no dynamicDocUrl then there must be a dynamicDocFormName else we throw an error
+            if (!mydata.dynamicdocurl) {
+                dynamicDocUrl = formInputToUrlWithQueryStr(mydata.dynamicDocFormName, mydata.ofbizUrlPrefix);
             } else {
-                showSignAndSendModal(mydata.title, mydata.emailSubject, mydata.emailBody, mydata.dynamicDocUrl, mydata.mime);
+                dynamicDocUrl = mydata.dynamicdocurl;
+            }
+            if (dynamicDocUrl) {
+                spin.start();
+                if (mode && mode === "custom") {
+                    setupDocumentSendEmbeddedView(mydata.title, mydata.emailsubject, mydata.emailbody, dynamicDocUrl, mydata.mime);
+                } else {
+                    mode = "sns";
+                    showSignAndSendModal(mydata.title, mydata.emailsubject, mydata.emailbody, dynamicDocUrl, mydata.mime);
+                }
             }
         },
         showOtherTests = function showOtherTests() {
@@ -246,20 +266,20 @@ var Docusign = function Docusign(options) {
                 envelopeId: envelopeId
             }).then(function(data) {
                 if (debugging) console.log("response: " + JSON2.stringify(data));
-
                 return tmpls.renderExtTemplateStr({
                     name: 'envelopeSummary',
                     data: data
                 });
             }).then(function(envelopeSummaryHtml) {
-               return Promise.resolve(eModal.alert({message: envelopeSummaryHtml, buttons: false}, "New envelope Sent"));
+                return Promise.resolve(eModal.alert({
+                    message: envelopeSummaryHtml,
+                    buttons: false
+                }, "New envelope Sent"));
             }).then(function() {
-               setTimeout(function() {
+                setTimeout(function() {
                     finishSigningSession();
                 }, 1300);
-            }).then(function() {
-                
-            })
+            }).then(function() {})
             if (debugging) console.log("showEnvelopeSummary called!");
         },
         startSignAndSend = function startSignAndSend(argsObj) {
@@ -307,8 +327,8 @@ var Docusign = function Docusign(options) {
             }
             request.RecipientModels.push(recipient);
             spin.start();
-            return ajx.ajaxPostJson(getEndPoint() + 'autoPositionedSigner', request)
-            .then(function(data) {
+            if (debugging) console.log("startSignAndSend request " + JSON2.stringify(request))
+            return ajx.ajaxPostJson(getEndPoint() + 'autoPositionedSigner', request).then(function(data) {
                 if (debugging) console.log("setupDocumentSend response " + JSON2.stringify(data))
                 if (data.status === "success") {
                     spin.stop();
@@ -326,10 +346,10 @@ var Docusign = function Docusign(options) {
                     console.error("failed with cause: " + data.response);
                     return null;
                 }
-                if (debugging) console.log("signAndSendNewEnvelopeId: "+signAndSendNewEnvelopeId);
+                if (debugging) console.log("signAndSendNewEnvelopeId: " + signAndSendNewEnvelopeId);
             });
         },
-        showSignAndSendModal = function showSignAndSendModal(docName, emailSubject, emailBody, docUrlOrPath, mime) {
+        showSignAndSendModal = function showSignAndSendModal() {
             var args = [].slice.call(arguments);
             var argsObj = {
                 docName: args[0],
@@ -373,14 +393,11 @@ var Docusign = function Docusign(options) {
                         dynamicDocUrl: $("#docUrl").val(),
                         mode: $("#mode").val(),
                         mime: "application/pdf",
-                        emailSubject: $("#emailSubject").val()
+                        emailSubject: $("#emailSubject").val(),
+                        dynamicDocFormName: $("#dynamicDocFormName").val(),
+                        ofbizUrlPrefix: $("#ofbizUrlPrefix").val()
                     }
-                    spin.start();
-                    if (mydata.mode === "custom") {
-                        setupDocumentSendEmbeddedView(mydata.title, mydata.emailSubject, mydata.emailBody, mydata.dynamicDocUrl, mydata.mime);
-                    } else {
-                        showSignAndSendModal(mydata.title, mydata.emailSubject, mydata.emailBody, mydata.dynamicDocUrl, mydata.mime);
-                    }
+                    signhereAction(mydata);
                 });
             });
         },
@@ -415,11 +432,10 @@ var Docusign = function Docusign(options) {
             });
         },
         setupEmbeddedView = function setupEmbeddedView(url, modeltitle) {
-            if (debugging) console.log("signAndSendNewEnvelopeId: "+signAndSendNewEnvelopeId);
-            return Promise.resolve(eModal.iframe(url, modeltitle))
-            .then(function(modalCloseFuction) {
+            if (debugging) console.log("signAndSendNewEnvelopeId: " + signAndSendNewEnvelopeId);
+            return Promise.resolve(eModal.iframe(url, modeltitle)).then(function(modalCloseFuction) {
                 spin.stop();
-                if (debugging) console.log("signAndSendNewEnvelopeId: "+signAndSendNewEnvelopeId);
+                if (debugging) console.log("signAndSendNewEnvelopeId: " + signAndSendNewEnvelopeId);
                 iframeModalClose = modalCloseFuction;
                 // var loadNum = 0;
                 // $("#emodal-hacked-iframe").on('load', function(e) {
@@ -513,9 +529,9 @@ var Docusign = function Docusign(options) {
                 //suggest and fill all form fields
                 return formBuilder.build(addNewUserForm);
             }).then(function() {
-                $('docusign').on('click', '#addUserBtn', function(e) {
+                $(document).on('click', '#addUserBtn', function(e) {
                     e.preventDefault();
-                    var nameValues = $("#addDocusignUserForm").serializeArray();;
+                    var nameValues = $("#addDocusignUserForm").serializeArray();
                     var jsonReq = {};
                     $.each(nameValues, function(index, pairs) {
                         jsonReq[pairs.name] = pairs.value;
@@ -530,7 +546,7 @@ var Docusign = function Docusign(options) {
                         if (debugging) console.log("after call to addUserToTenantAcc(jsonReq). actioned is now " + actioned);
                     }
                 });
-                $('docusign').on('click', '#addUserBtn-clear', function(e) {
+                $(document).on('click', '#addUserBtn-clear', function(e) {
                     e.preventDefault();
                     showAddUserToTenantAccForm();
                     spin.stop();
@@ -571,43 +587,6 @@ var Docusign = function Docusign(options) {
                 spin.stop();
             });
         },
-        showDisableUserForm = function showDisableUserForm() {
-            if (debugging) console.log("showDisableUserForm called.");
-            var actioned = false;
-            tmpls.renderExtTemplate({
-                name: 'disableUserFormWrapper',
-                selector: targetDiv
-            }).then(function() {
-                //suggest and fill all form fields
-                return tmpls.renderExtTemplate({
-                    name: 'disableUserForm',
-                    selector: '#disableUserForm'
-                })
-            }).then(function() {
-                $('docusign').on('click', '#disableUserBtn', function(e) {
-                    e.preventDefault();
-                    //alert("mark");
-                    if (debugging) console.log('disableUserBtn clicked!');
-                    var nameValues = $("#disableUserForm").serializeArray();
-                    var jsonReq = {};
-                    $.each(nameValues, function(index, pairs) {
-                        jsonReq[pairs.name] = pairs.value;
-                    });
-                    if (debugging) console.log(JSON2.stringify(jsonReq));
-                    //FIXME seems to get called twice, casing errors duplicate user
-                    if (actioned === false) {
-                        disableUser(jsonReq);
-                        actioned = true;
-                    }
-                });
-                $('docusign').on('click', '#disableUserBtn-clear', function(e) {
-                    e.preventDefault();
-                    //alert("mark");
-                    showDisableUserForm();
-                    spin.stop();
-                });
-            });
-        },
         // showDisableUserForm = function showDisableUserForm() {
         //     if (debugging) console.log("showDisableUserForm called.");
         //     var actioned = false;
@@ -615,44 +594,12 @@ var Docusign = function Docusign(options) {
         //         name: 'disableUserFormWrapper',
         //         selector: targetDiv
         //     }).then(function() {
-        //         var disableUserForm = {
-        //                 inputFieldArray: [{
-        //                     name: "firstName",
-        //                     type: "text"
-        //                 }, {
-        //                     name: "lastName",
-        //                     type: "text"
-        //                 }, {
-        //                     name: "email",
-        //                     type: "email"
-        //                 }, {
-        //                     name: "userLoginId",
-        //                     type: "text"
-        //                 }],
-        //                 formId: "disableUserForm",
-        //                 formButtonId: "disableUserBtn",
-        //                 formButtonName: "Disable",
-        //                 formButtonClasses: "btn btn-xl btn-primary pull-right",
-        //                 lookupUrl: "/docusign-component/control/disableDocusignUserSuggestFillForm",
-        //                 targetSelector: "#disableUserForm",
-        //                 templatesFolderPath: "/docusign/main/templates/",
-        //                 otherFormGroupTypesHtml: '<div class="form-check"><div class="col-sm-4"></div><label class="col-sm-8 form-check-label"><input class="cd form-check-input" type="checkbox" value="">close DocuSign User Profile</label></div><div class="form-check"><div class="col-sm-4"></div><label class="col-sm-8 form-check-label"><input class="cd form-check-input" type="checkbox" value="">Void users in-progress envelopes</label></div>'
-        //             }
-        //             //suggest and fill all form fields
-        //         return formBuilder.build(disableUserForm);
+        //         //suggest and fill all form fields
+        //         return tmpls.renderExtTemplate({
+        //             name: 'disableUserForm',
+        //             selector: '#disableUserForm'
+        //         })
         //     }).then(function() {
-        //         // var eltest= $('#disableUserBtn');
-        //         // if(eltest.length === 0){
-        //         //   alert("can't find el");
-        //         // }else{
-        //         //   alert("el found");
-        //         // }
-        //         //
-        //         // setTimeout(function(){
-        //         //     $('docusign').click(function(e){alert("click handler - clicked");});
-        //         //     $('docusign').on('click', '#disableUserBtn', function(e) {alert("on handler - clicked");});
-        //         //
-        //         // }, 3000);
         //         $('docusign').on('click', '#disableUserBtn', function(e) {
         //             e.preventDefault();
         //             //alert("mark");
@@ -675,13 +622,73 @@ var Docusign = function Docusign(options) {
         //             showDisableUserForm();
         //             spin.stop();
         //         });
-        //         $('#disableUserBtn').prop('disabled', true);
-        //         $('docusign').on('click', '.cb', function(e) {
-        //             e.preventDefault();
-        //             $('#disableUserBtn').prop('disabled', false);
-        //         });
         //     });
         // },
+        showDisableUserForm = function showDisableUserForm() {
+            if (debugging) console.log("showDisableUserForm called.");
+            var actioned = false;
+            tmpls.renderExtTemplate({
+                name: 'disableUserFormWrapper',
+                selector: targetDiv
+            }).then(function() {
+                var disableUserForm = {
+                        inputFieldArray: [{
+                            name: "firstName",
+                            type: "text"
+                        }, {
+                            name: "lastName",
+                            type: "text"
+                        }, {
+                            name: "email",
+                            type: "email"
+                        }, {
+                            name: "userLoginId",
+                            type: "text"
+                        }],
+                        formId: "disableUserForm",
+                        formButtonId: "disableUserBtn",
+                        formButtonName: "Disable",
+                        formButtonClasses: "btn btn-xl btn-primary pull-right",
+                        lookupUrl: "/docusign-component/control/disableDocusignUserSuggestFillForm",
+                        targetSelector: "#disableUser",
+                        templatesFolderPath: "/docusign/main/templates/",
+                        otherFormGroupTypesHtml: '<div class="form-check"><div class="col-sm-4"></div><label class="col-sm-8 form-check-label"><input id="cb-close" class="cb form-check-input" type="checkbox">close DocuSign User Profile</label></div><div class="form-check"><div class="col-sm-4"></div><label class="col-sm-8 form-check-label"><input id="cb-void" class="cb form-check-input" type="checkbox">Void users in-progress envelopes</label></div>'
+                    }
+                    //suggest and fill all form fields
+                return formBuilder.build(disableUserForm);
+            }).then(function() {
+                
+                $(document).on('click', '#disableUserBtn', function(e) {
+                    e.preventDefault();
+                    //alert("mark");
+                    if (debugging) console.log('disableUserBtn clicked!');
+                    var nameValues = $("#disableUserForm").serializeArray();
+                    var jsonReq = {};
+                    $.each(nameValues, function(index, pairs) {
+                        jsonReq[pairs.name] = pairs.value;
+                    });
+                    var closed = $("#cb-close").val();
+                    var voided = $("#cb-void").val();
+                    if (debugging) console.log(JSON2.stringify(jsonReq));
+                    //FIXME seems to get called twice, casing errors duplicate user
+                    if (actioned === false) {
+                        disableUser(jsonReq);
+                        actioned = true;
+                    }
+                });
+                $(document).on('click', '#disableUserBtn-clear', function(e) {
+                    e.preventDefault();
+                    //alert("mark");
+                    showDisableUserForm();
+                    spin.stop();
+                });
+                $('#disableUserBtn').prop('disabled', true);
+                $(document).on('click', '.cb', function(e) {
+                    e.preventDefault();
+                    $('#disableUserBtn').prop('disabled', false);
+                });
+            });
+        },
         showEnvelopeStatusTable = function showEnvelopeStatusTable() {
             return tmpls.renderExtTemplate({
                 name: 'dataTables',
@@ -691,6 +698,7 @@ var Docusign = function Docusign(options) {
         disableUser = function disableUser(jsonRequestData) {
             //add tenant key
             jsonRequestData.tenantKey = tenantKey;
+
             spin.start();
             return ajx.ajaxPost(getEndPoint() + 'disableUser', jsonRequestData).
             then(function(data) {
@@ -713,33 +721,40 @@ var Docusign = function Docusign(options) {
                 }
             });
         },
-        //options => {formId:"exampleId", formName:"exampleFormName"}
-        formInputToQueryStr = function formInputToQueryStr(options){
+        formInputToUrlWithQueryStr = function formInputToUrlWithQueryStr(formName, ofbizUrlPrefix) {
             var form = null;
-            if(options.formId){
-                form = $("#"+options.formId);
-            }else if(options.formName){
-                 form = $('form[name="'+options.formName+'"]');
+            if (formName) {
+                form = $('form[name="' + formName + '"]');
+            }
+            if (form === null) {
+                gwl.grrr({
+                    title: "<b>Unable To Perform Action</b><br/>",
+                    msg: "Sign Here button incorrectly configured! No dynamic document details found.",
+                    type: "danger"
+                });
+                return;
             }
             var serial = form.serialize();
-            console.log("serial: "+serial);
-            return serial;
+            //console.log("serialized: " + serial);
+            var actionUrl = "/" + form.attr("action");
+            //console.log("actionUrl: " + actionUrl);
+            var url = (ofbizUrlPrefix ? ofbizUrlPrefix : "") + actionUrl + "?" + serial;
+            //console.log("url: " + url);
+            return url;
         }
-
     publicInterface = {
         init: init,
         //action methods
         setupDocumentSendEmbeddedView: setupDocumentSendEmbeddedView,
         disableUser: disableUser,
         addUserToTenantAcc: addUserToTenantAcc,
-        formInputToQueryStr: formInputToQueryStr,
+        formInputToUrlWithQueryStr: formInputToUrlWithQueryStr,
         //poc form show methods
         showSetupDocumentForm: showSetupDocumentForm,
         showAddUserToTenantAccForm: showAddUserToTenantAccForm,
         showDisableUserForm: showDisableUserForm,
         showEnvelopeStatusTable: showEnvelopeStatusTable,
-        showOtherTests: showOtherTests,
-        formInputToQueryStr: formInputToQueryStr
+        showOtherTests: showOtherTests
     }
     return publicInterface;
 }
@@ -759,22 +774,25 @@ $(function() {
     if (!loginUrlKey) {
         //in testing through an ifrm params are used
         loginUrlKey = getParameterByName("loginUrlKey");
-    } else {
-        loginUrlKey = window.ds.loginUrlKey;
+    }
+    //at this stage unsure where this came from var is not exposed on ds anyway
+    // else {
+    //     loginUrlKey = window.ds.loginUrlKey;
+    // }
+    var userLoginId = dsscript.attr('data-userLoginId');
+    if (!userLoginId) {
+        //in testing through an ifrm params are used
+        userLoginId = getParameterByName("userLoginId");
     }
     var debug = dsscript.attr('data-debug');
     if (!debug) {
         //in testing through an ifrm params are used
         debug = getParameterByName("debug");
-    } else {
-        debug = window.ds.debug;
     }
     var modeAdmin = dsscript.attr('data-admin');
     if (!modeAdmin) {
         //in testing through an ifrm params are used
         modeAdmin = getParameterByName("admin");
-    } else {
-        modeAdmin = window.ds.admin;
     }
     var docusigninthandler = setInterval(function() {
         if (Docusign) {
@@ -787,6 +805,7 @@ $(function() {
             domSetup.loadCSSIfNotAlreadyLoaded("/docusign/main/dst/docusign-styles.min.css");
             var ds = Docusign({
                 loginUrlKey: loginUrlKey,
+                userLoginId: userLoginId,
                 modeAdmin: modeAdmin,
                 debug: debug
             });

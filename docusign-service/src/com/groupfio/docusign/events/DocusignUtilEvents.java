@@ -105,6 +105,9 @@ public class DocusignUtilEvents {
 	String loginUrlKey = request.getParameter("loginUrlKey");
 	if(loginUrlKey == null) loginUrlKey = (String) request.getAttribute("loginUrlKey");
 	
+	String userLoginId = request.getParameter("userLoginId");
+	if(loginUrlKey == null) userLoginId = (String) request.getAttribute("userLoginId");
+	
 	String  tenantId = OTUtil.validateIsTenantKey(loginUrlKey);
 	
 	if (UtilValidate.isEmpty(loginUrlKey) && UtilValidate.isEmpty(tenantId)) {
@@ -114,7 +117,16 @@ public class DocusignUtilEvents {
 
 	HttpSession session = request.getSession();
 	GenericValue userLogin = (GenericValue) session.getAttribute("userLogin");
-	String userLoginId = userLogin.getString("userLoginId");
+	if(userLogin != null){//try this it does work in some cases, but not for cross component uses it seems
+		userLoginId = userLogin.getString("userLoginId");
+	}else{
+		Delegator delegator = OTUtil.getTenantDelegator(tenantId);
+		try {
+			userLogin = (GenericValue) delegator.findByPrimaryKey("UserLogin", UtilMisc.toMap("userLoginId", userLoginId));
+		} catch (GenericEntityException e) {
+			e.printStackTrace();
+		}
+	}
 
 	Map<String, String> uidmap = new HashMap<String, String>();
 	uidmap.put("tenantId", tenantId);

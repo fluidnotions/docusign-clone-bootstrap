@@ -9,6 +9,58 @@
     <copyright></copyright>
     <author>None</author>
     <version></version>
+    
+     <entity entity-name="DynamicDocumentDownloadTenantCredentials"
+            package-name=""
+            title="Main db, provides accound credentials per tenant for dynamic doc downloads">
+        <field name="tenantKey" type="id-long-ne"></field>
+        <field name="userLoginId" type="comment"></field>
+        <field name="password" type="comment"></field>
+        <field name="hostBaseUrl" type="comment"></field>
+        <field name="enabled" type="indicator"></field>
+
+        <prim-key field="tenantKey"/>
+    </entity>
+    
+    <view-entity entity-name="UserLoginPersonNameAndEmail" package-name="org.ofbiz"
+		title="helps with suggest boxes in a few components">
+		<member-entity entity-alias="PTY" entity-name="Party" />
+		<member-entity entity-alias="ULN" entity-name="UserLogin" />
+		<member-entity entity-alias="PER" entity-name="Person" />
+		<member-entity entity-alias="CM" entity-name="ContactMech" />
+		<member-entity entity-alias="PCMP" entity-name="PartyContactMechPurpose" />
+		<alias entity-alias="PTY" name="partyId" />
+		<alias entity-alias="PTY" name="partyTypeId" />
+		<alias entity-alias="ULN" name="userLoginId" />
+		<alias entity-alias="PER" name="lastName" />
+		<alias entity-alias="PER" name="firstName" />
+		<alias entity-alias="PCMP" name="contactMechPurposeTypeId" />
+		<alias entity-alias="PCMP" name="fromDate" />
+		<alias entity-alias="PCMP" name="thruDate" />
+		<alias entity-alias="CM" name="contactMechId" />
+		<alias entity-alias="CM" name="email" field="infoString" />
+		<alias entity-alias="CM" name="contactMechTypeId" />
+
+		<view-link entity-alias="PTY" rel-entity-alias="PER">
+			<key-map field-name="partyId" />
+		</view-link>
+		<view-link entity-alias="PER" rel-entity-alias="PCMP">
+			<key-map field-name="partyId" />
+		</view-link>
+		<view-link entity-alias="PCMP" rel-entity-alias="CM">
+			<key-map field-name="contactMechId"/>
+
+		</view-link>
+		<view-link entity-alias="PTY" rel-entity-alias="ULN">
+			<key-map field-name="partyId" />
+		</view-link>
+		<relation type="one-nofk" rel-entity-name="Party">
+			<key-map field-name="partyId" />
+		</relation>
+		<relation type="one-nofk" rel-entity-name="UserLogin">
+			<key-map field-name="userLoginId" />
+		</relation>
+	</view-entity>
 
      <entity entity-name="DocuSignAuthenticatingUser"
             package-name=""
@@ -64,7 +116,7 @@
     
     <entity entity-name="DocuSignEnvelopeSignerStatus"
             package-name=""
-            title="(stored in tenant database)">
+            title="Keeps track of the 2 signer statuses associated with each envelope (stored in tenant database)">
             
       <field name="envelopeId" type="comment"></field>
       <field name="isBulkRecipient" type="comment"></field>
@@ -87,7 +139,7 @@
 
 		 
 	 <view-entity entity-name="DocusignUserLoginPersonNameAndEmail" package-name="org.ofbiz"
-		title="helps with suggest boxes in a few components">
+		title="helps with suggest boxes add or remove docusign admin functions">
 		<member-entity entity-alias="PTY" entity-name="Party" />
 		<member-entity entity-alias="ULN" entity-name="UserLogin" />
 		<member-entity entity-alias="PER" entity-name="Person" />

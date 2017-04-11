@@ -20,7 +20,6 @@
 
 	<target name="classpath">
 		<path id="local.class.path">
-			<fileset dir="${ofbiz.dir}/hot-deploy/fluidnotions-common-tools/build/lib" includes="*.jar"/>
 			<fileset dir="${ofbiz.dir}/framework/base/lib" includes="*.jar" />
 			<fileset dir="${ofbiz.dir}/framework/base/lib/commons" includes="*.jar" />
 			<fileset dir="${ofbiz.dir}/framework/base/lib/j2eespecs" includes="*.jar" />

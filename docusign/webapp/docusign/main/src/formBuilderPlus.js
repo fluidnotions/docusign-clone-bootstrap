@@ -119,6 +119,13 @@ module.exports = function FormBuilderPlus() {
             if (debug) console.log("firstOrderTemplateString: " + firstOrderTemplateString);
             return firstOrderTemplateString
         },
+        potentialDocuSignUsers = [],
+        setPotentialDocuSignUsers = function setPotentialDocuSignUsers(val){
+            potentialDocuSignUsers = val;
+        },
+        getPotentialDocuSignUsers = function getPotentialDocuSignUsers(){
+            return potentialDocuSignUsers;
+        },
         autocompleteFormBuilder = function autocompleteFormBuilder(options) {
             _.forEach(options.inputFieldArray, function(value) {
                 value.fieldDisplyLabel = _.startCase(value.name);
@@ -127,7 +134,7 @@ module.exports = function FormBuilderPlus() {
             var targetSelector = options.targetSelector;
             var tmpls = TemplateUtil(options.templatesFolderPath, options.targetSelector);
             var formTemplateStr = null;
-            var potentialDocuSignUsers = [];
+            
             var currentInput = {};
             var elId = null;
             var fieldName = null;
@@ -152,14 +159,13 @@ module.exports = function FormBuilderPlus() {
                     "fieldName": fieldName,
                     "searchTerm": searchTerm
                 }).then(function(data) {
-                    //if (debug) 
-                        console.log("lookup objects " + JSON.stringify(data));
-                    potentialDocuSignUsers = data;
+                    if (debug) console.log("lookup objects " + JSON.stringify(data));
+                    setPotentialDocuSignUsers(data);
                     currentInput[fieldName] = searchTerm;
                     return tmpls.renderTemplate(formTemplateStr, {
                         data: {
                             currentInput: currentInput,
-                            suggestions: potentialDocuSignUsers
+                            suggestions: getPotentialDocuSignUsers()
                         }
                     });
                 }).then(function() {
@@ -171,17 +177,21 @@ module.exports = function FormBuilderPlus() {
                 var arrObjIndex = event.currentTarget.id.split('-')[1];
                 if (debug) console.log("click event on .suggestion item index: " + arrObjIndex);
                 if (debug) console.log("selected index: " + arrObjIndex);
-                var selObject = potentialDocuSignUsers[arrObjIndex];
-                if (debug) console.log("selected object: " + JSON.stringify(selObject));
-                $(elId).val($(this).text());
-                _.forEach(options.inputFieldArray, function(value) {
-                    if (value.name !== fieldName) {
-                        var autoFillValue = selObject[value.name];
-                        $('#' + value.name + '-input').val(autoFillValue);
-                    }
-                });
-                $("#" + fieldName + "-input-sugggest").hide();
-                potentialDocuSignUsers = null;
+                var selObject = getPotentialDocuSignUsers()[arrObjIndex];
+                if (selObject) {
+                    if (debug) console.log("selected object: " + JSON.stringify(selObject));
+                    $(elId).val($(this).text());
+                    _.forEach(options.inputFieldArray, function(value) {
+                        if (value.name !== fieldName) {
+                            var autoFillValue = selObject[value.name];
+                            $('#' + value.name + '-input').val(autoFillValue);
+                        }
+                    });
+                    $("#" + fieldName + "-input-sugggest").hide();
+                    setPotentialDocuSignUsers([]);
+                }else{
+                    if (debug) console.log("selected object is undefined");
+                }
             });
             return tmpls.getBPFileAsStr("formBuilder").then(function(secondOrderTemplate) {
                 if (debug) console.log("secondOrderTemplate str: " + secondOrderTemplate);
@@ -190,7 +200,7 @@ module.exports = function FormBuilderPlus() {
                 return tmpls.renderTemplate(formTemplateStr, {
                     data: {
                         currentInput: currentInput,
-                        suggestions: potentialDocuSignUsers
+                        suggestions: getPotentialDocuSignUsers()
                     }
                 });
             });

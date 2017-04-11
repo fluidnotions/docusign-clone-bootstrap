@@ -579,31 +579,15 @@ module.exports = function(){
 
               params.async = true;
 
-              if (params.buttons) {
-                  var btn;
-                  for (var i = 0, k = params.buttons.length; i < k; i++) {
-                      btn = params.buttons[i];
-                      btn.style = (btn.style || 'default') + ' pull-left';
-                      btn.type = btn.type || 'button';
-                  }
-              }
-
-              var buttons = _getFooter([{
-                  close: true,//we still have the spinner
-                  type: 'click',
-                  text: params.btnLabel
-              }].concat(params.buttons || []));
+              var messageFotter = $(DIV).addClass('modal-footer').prop('id', FOOTER_ID);
+              messageFotter.append('<button class="signAndSendDialog btn btn-primary" type=button>'+params.btnLabel+'</button>');
 
               params.buttons = false;
 
-
               params.message = $(params.html)
-                  .append(buttons)
-                  .on('click', submit);
-
-              return alert(params);
-
-              function submit(ev) {
+                  .append(messageFotter);
+                  
+              $(params.message).on('click', ".signAndSendDialog" ,function(ev){
                   ev.preventDefault();
                   console.log("submit called in eModal-hacked! ev.type: "+ev.type+", submitted yet: "+submitted);
                   if(submitted === false && ev.type === 'click'){
@@ -611,7 +595,13 @@ module.exports = function(){
                     submitted = true;
                     dfd.resolve();
                   }
-              }
+                  setTimeout(function(){
+                    close();
+                  }, 1000);
+
+              });
+
+            return alert(params);
           }
 
         return {

@@ -81,12 +81,10 @@ public class DocuSignClient {
 	private String afterSendRedirectUrl;
 	private AuthenticatingUser authenticatingUser;
 
-	public DocuSignClient asUser(String operatingUser) throws MalformedURLException, IOException,
-			DocuSigAPIException {
+	public DocuSignClient asUser(String operatingUser) throws MalformedURLException, IOException, DocuSigAPIException {
 		if (operatingUser != null)
 			this.operatingUser = operatingUser;
-		Debug.logInfo("operatingUser: " + operatingUser + ", AuthenticatingUser: email: " + email,
-				this.getClass().getName());
+		Debug.logInfo("operatingUser: " + operatingUser + ", AuthenticatingUser: email: " + email, this.getClass().getName());
 		login();
 		return this;
 	}
@@ -100,7 +98,7 @@ public class DocuSignClient {
 	}
 
 	public void init(AuthenticatingUser au) throws MalformedURLException, IOException {
-	    this.authenticatingUser = au;
+		this.authenticatingUser = au;
 		init(au.getUsername(), au.getPassword(), au.getIntegratorKey());
 		this.tabsAndSignEmbedded = new TabsAndSignEmbedded(serverUrl);
 		this.afterSendRedirectUrl = au.getAfterSendRedirectUrlBase();
@@ -111,73 +109,72 @@ public class DocuSignClient {
 		this.email = email;
 		this.password = password;
 		this.integratorKey = integratorKey;
-		this.autoPosHelper = AutoPositionedSignerHelper.newInstance(serverUrl,this);
+		this.autoPosHelper = AutoPositionedSignerHelper.newInstance(serverUrl, this);
 	}
 
-    /*
-     * see https://docs.docusign.com/esign/guide/authentication/sobo.html this
-     * would be the xml header... impl if operatingUser is not set we are auth
-     * with super user authenticationUser this user needs Required Permissions
-     * The authenticating user must have the following user setting properties
-     * set to true: 
-     * apiAccountWideAccess: Specifies that the user can send and
-     * manage envelopes for the entire account using the DocuSign API.
-     * 
-     * allowSendOnBehalfOf: Specifies that the user can send envelopes and
-     * perform other tasks on behalf of other users through the API.
-     * 
-     * for the so called username to be the email address is normal
-     */
+	/*
+	 * see https://docs.docusign.com/esign/guide/authentication/sobo.html this
+	 * would be the xml header... impl if operatingUser is not set we are auth
+	 * with super user authenticationUser this user needs Required Permissions
+	 * The authenticating user must have the following user setting properties
+	 * set to true: apiAccountWideAccess: Specifies that the user can send and
+	 * manage envelopes for the entire account using the DocuSign API.
+	 * 
+	 * allowSendOnBehalfOf: Specifies that the user can send envelopes and
+	 * perform other tasks on behalf of other users through the API.
+	 * 
+	 * for the so called username to be the email address is normal
+	 */
 	public String getAuthHeader() {
-	    	//xml opting for json format
-//		String soboUser = operatingUser != null ? "<SendOnBehalfOf>" + operatingUser + "</SendOnBehalfOf>" : "";
-//		String authenticateStr = "<DocuSignCredentials>" + soboUser + "<Username>" + email + "</Username>" + "<Password>" + password + "</Password>" + "<IntegratorKey>" + integratorKey + "</IntegratorKey>" + "</DocuSignCredentials>";
-//		return authenticateStr;
-		String  authenticateStr = null;
+		// xml opting for json format
+		// String soboUser = operatingUser != null ? "<SendOnBehalfOf>" +
+		// operatingUser + "</SendOnBehalfOf>" : "";
+		// String authenticateStr = "<DocuSignCredentials>" + soboUser +
+		// "<Username>" + email + "</Username>" + "<Password>" + password +
+		// "</Password>" + "<IntegratorKey>" + integratorKey +
+		// "</IntegratorKey>" + "</DocuSignCredentials>";
+		// return authenticateStr;
+		String authenticateStr = null;
 		try {
-		    authenticateStr = this.authenticatingUser.toJsonAuthenticationHeader(this.operatingUser);
+			authenticateStr = this.authenticatingUser.toJsonAuthenticationHeader(this.operatingUser);
 		} catch (JsonProcessingException e) {
-		    // TODO Auto-generated catch block
-		    e.printStackTrace();
-		    Debug.logError(e, "getAuthHeader: "+ authenticateStr, module);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Debug.logError(e, "getAuthHeader: " + authenticateStr, module);
 		}
-		if(UtilValidate.isEmpty(authenticateStr)){
+		if (UtilValidate.isEmpty(authenticateStr)) {
 			Debug.logError("getAuthHeader is EMPTY", module);
 		}
 		return authenticateStr;
 	}
 
-	public String addSignerTabsAndAllowSenderToSignEmbedded(
-			String dynamicPdfTempFilePath, String emailSubject, String emailBlurb,
+	public String addSignerTabsAndAllowSenderToSignEmbedded(String dynamicPdfTempFilePath, String emailSubject, String emailBlurb,
 			String afterSendRedirectCompleteUrl, List<RecipientModel> recipientModels) throws DocuSigAPIException {
 		assert (recipientModels.size() == 2);// element position math not
 												// defined for more then 2
 												// recipients
 		String result = null;
 		try {
-			result = autoPosHelper.applyAutoPositionedSignTabsToDoc(dynamicPdfTempFilePath,
-					emailSubject, emailBlurb, afterSendRedirectCompleteUrl, recipientModels);
+			result = autoPosHelper.applyAutoPositionedSignTabsToDoc(dynamicPdfTempFilePath, emailSubject, emailBlurb, afterSendRedirectCompleteUrl,
+					recipientModels);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new DocuSigAPIException(e.getMessage());
-		}catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DocuSigAPIException(e.getMessage());
 		}
 		return result;
 	}
 
-	public ViewUrl addSignerTabsAndAllowSenderToSignEmbedded(String dynamicPdfTempFilePath,
-			Map<String, String> nameToEmail, String afterSendRedirectCompleteUrl)
+	public ViewUrl addSignerTabsAndAllowSenderToSignEmbedded(String dynamicPdfTempFilePath, Map<String, String> nameToEmail, String afterSendRedirectCompleteUrl)
 			throws IOException, DocuSigAPIException, ApiException {
-		tabsAndSignEmbedded.setupTabsSign(dynamicPdfTempFilePath, nameToEmail,
-				"Please sign this document", "Follow the link to sign the document online.",
+		tabsAndSignEmbedded.setupTabsSign(dynamicPdfTempFilePath, nameToEmail, "Please sign this document", "Follow the link to sign the document online.",
 				afterSendRedirectCompleteUrl, accountId);
 		String rawResponse = newInvokeAdapter(tabsAndSignEmbedded.createEnvelope());
 		EnvelopeSummary envelopeSummary = mapper.readValue(rawResponse, EnvelopeSummary.class);
 		String envelopeId = envelopeSummary.getEnvelopeId();
-		String rawResponse2 = newInvokeAdapter(tabsAndSignEmbedded
-				.senderEmbeddedSignView(envelopeId));
+		String rawResponse2 = newInvokeAdapter(tabsAndSignEmbedded.senderEmbeddedSignView(envelopeId));
 		ViewUrl url = mapper.readValue(rawResponse2, ViewUrl.class);
 		Debug.logInfo("envelopeId: " + envelopeId + ", url: " + url, module);
 
@@ -197,19 +194,14 @@ public class DocuSignClient {
 	// * @param authNames The authentications to apply
 	// *@return (originally the response body in type of string) as object
 	// wrapper
-	public String newInvokeAdapter(ApiRestRequest apiRestRequest) throws MalformedURLException,
-			IOException, DocuSigAPIException {
+	public String newInvokeAdapter(ApiRestRequest apiRestRequest) throws MalformedURLException, IOException, DocuSigAPIException {
 		HttpURLConnection conn = null;
 		if (apiRestRequest.formParams != null && apiRestRequest.formParams.size() > 0) {
-			throw new RuntimeException(
-					"newInvokeAdapter has no implemnetation for request with form paramaters");
+			throw new RuntimeException("newInvokeAdapter has no implemnetation for request with form paramaters");
 		}
 		try {
 
-			conn = getRestConnection(
-					getBaseUrl()
-							+ EnvelopesApi.buildUrl(apiRestRequest.urlSubPath,
-									apiRestRequest.queryParams), apiRestRequest.contentType,
+			conn = getRestConnection(getBaseUrl() + EnvelopesApi.buildUrl(apiRestRequest.urlSubPath, apiRestRequest.queryParams), apiRestRequest.contentType,
 					apiRestRequest.acceptHeader);
 			conn.setRequestMethod(apiRestRequest.restVerb);
 
@@ -269,7 +261,7 @@ public class DocuSignClient {
 	 * @see com.docusign.esignature.DocuSignClient#login()
 	 */
 
-	public boolean login() throws MalformedURLException, IOException, DocuSigAPIException {
+	public boolean login() throws MalformedURLException, IOException, DocuSigAPIException, UnknownHostException {
 		String loginUrl = serverUrl + "/restapi/v2/login_information";
 		HttpURLConnection conn = null;
 
@@ -294,15 +286,9 @@ public class DocuSignClient {
 			accountId = loginAccounts.get(0).getAccountId();
 			baseUrl = loginAccounts.get(0).getBaseUrl();
 
-			Debug.logInfo("accountId: " + accountId + ", baseUrl: " + baseUrl, this.getClass()
-					.getName());
+			Debug.logInfo("accountId: " + accountId + ", baseUrl: " + baseUrl, this.getClass().getName());
 
-		}catch(UnknownHostException uhe){
-			Debug.logInfo("no internet connection, unable to poll docusign api for envelope updates!", this.getClass()
-					.getName());
-			return false;
-			
-		}finally {
+		}  finally {
 			if (conn != null)
 				conn.disconnect();
 		}
@@ -351,8 +337,7 @@ public class DocuSignClient {
 	 * java.lang.String)
 	 */
 
-	public boolean voidEnvelope(String envelopeId, String voidedReason)
-			throws MalformedURLException, IOException, DocuSigAPIException {
+	public boolean voidEnvelope(String envelopeId, String voidedReason) throws MalformedURLException, IOException, DocuSigAPIException {
 		HttpURLConnection conn = null;
 		try {
 
@@ -390,13 +375,11 @@ public class DocuSignClient {
 	 * @see com.docusign.esignature.DocuSignClient#closeUser(java.lang.String)
 	 */
 
-	public String closeUser(String docuSignUserId) throws MalformedURLException, IOException,
-			DocuSigAPIException {
+	public String closeUser(String docuSignUserId) throws MalformedURLException, IOException, DocuSigAPIException {
 		HttpURLConnection conn = null;
 		try {
 
-			String request = "{\"users\":[{\"userId\":\"" + docuSignUserId
-					+ "\", \"userName\":\"\" }]}";
+			String request = "{\"users\":[{\"userId\":\"" + docuSignUserId + "\", \"userName\":\"\" }]}";
 			conn = getRestConnection(baseUrl + "/users");
 			conn.setRequestMethod("DELETE");
 			conn.setDoOutput(true);
@@ -424,8 +407,7 @@ public class DocuSignClient {
 			if (response.contains("errorDetails")) {
 				// return error message
 				String start = "\"message\":";
-				result = response.substring(response.indexOf(start) + start.length(),
-						response.indexOf("\"", response.indexOf(start) + start.length() + 1));
+				result = response.substring(response.indexOf(start) + start.length(), response.indexOf("\"", response.indexOf(start) + start.length() + 1));
 			}
 
 			return result;
@@ -444,8 +426,7 @@ public class DocuSignClient {
 	 * .lang.String)
 	 */
 
-	public EnvelopesStatusChanged getEnvelopesStatusChanged(String fromDateTime)
-			throws MalformedURLException, IOException, DocuSigAPIException {
+	public EnvelopesStatusChanged getEnvelopesStatusChanged(String fromDateTime) throws MalformedURLException, IOException, DocuSigAPIException {
 		HttpURLConnection conn = null;
 		try {
 
@@ -455,7 +436,7 @@ public class DocuSignClient {
 			params.put("status", "Any");
 
 			String request = prepRequestParam(params);
-			//Debug.logInfo("request: " + request, this.getClass().getName());
+			// Debug.logInfo("request: " + request, this.getClass().getName());
 			conn = getRestConnection(baseUrl + "/envelopes?" + request);
 			conn.setRequestMethod("GET");
 
@@ -471,7 +452,8 @@ public class DocuSignClient {
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(conn.getInputStream(), writer);
 
-			//Debug.logInfo("response: " + writer.toString(), this.getClass().getName());
+			// Debug.logInfo("response: " + writer.toString(),
+			// this.getClass().getName());
 
 			return mapper.readValue(writer.toString(), EnvelopesStatusChanged.class);
 		} finally {
@@ -508,8 +490,7 @@ public class DocuSignClient {
 	 * .docusign.esignature.json.RequestSignatureFromTemplate)
 	 */
 
-	public String requestSignatureFromTemplate(RequestSignatureFromTemplate request)
-			throws MalformedURLException, IOException, DocuSigAPIException {
+	public String requestSignatureFromTemplate(RequestSignatureFromTemplate request) throws MalformedURLException, IOException, DocuSigAPIException {
 		HttpURLConnection conn = null;
 
 		try {
@@ -534,8 +515,7 @@ public class DocuSignClient {
 			}
 
 			// Read the response
-			RequestSignatureResponse response = mapper.readValue(conn.getInputStream(),
-					RequestSignatureResponse.class);
+			RequestSignatureResponse response = mapper.readValue(conn.getInputStream(), RequestSignatureResponse.class);
 			return response.getEnvelopeId();
 		} finally {
 			if (conn != null)
@@ -553,8 +533,8 @@ public class DocuSignClient {
 	 * java.io.InputStream[])
 	 */
 
-	public String requestSignatureFromDocuments(RequestSignatureFromDocuments request,
-			InputStream[] stream) throws MalformedURLException, IOException, DocuSigAPIException {
+	public String requestSignatureFromDocuments(RequestSignatureFromDocuments request, InputStream[] stream) throws MalformedURLException, IOException,
+			DocuSigAPIException {
 
 		// TODO: lastRequest is not properly logged here
 
@@ -562,10 +542,8 @@ public class DocuSignClient {
 			throw new IllegalArgumentException("You need to pass in at least one file");
 
 		if (stream.length != request.getDocuments().size())
-			throw new IllegalArgumentException(
-					"The number of file bytes should be equal to the number of documents in the request. Got "
-							+ stream.length + " byte arrays, and " + request.getDocuments().size()
-							+ " file definitions.");
+			throw new IllegalArgumentException("The number of file bytes should be equal to the number of documents in the request. Got " + stream.length
+					+ " byte arrays, and " + request.getDocuments().size() + " file definitions.");
 
 		HttpURLConnection conn = null;
 
@@ -575,8 +553,7 @@ public class DocuSignClient {
 
 			String jsonBody = mapper.writeValueAsString(request);
 
-			String startRequest = "\r\n\r\n--BOUNDARY\r\n" + "Content-Type: application/json\r\n"
-					+ "Content-Disposition: form-data\r\n" + "\r\n" + jsonBody;
+			String startRequest = "\r\n\r\n--BOUNDARY\r\n" + "Content-Type: application/json\r\n" + "Content-Disposition: form-data\r\n" + "\r\n" + jsonBody;
 
 			// we break this up into two string since the PDF doc bytes go here
 			// and are not in string format.
@@ -600,9 +577,8 @@ public class DocuSignClient {
 
 				String boundary = "\r\n--BOUNDARY\r\n"
 						+ // opening boundary for next document
-						"Content-Type: " + contentType + "\r\n"
-						+ "Content-Disposition: file; filename=\"" + next.getName()
-						+ "\"; documentId=" + next.getDocumentId() + "\r\n" + "\r\n";
+						"Content-Type: " + contentType + "\r\n" + "Content-Disposition: file; filename=\"" + next.getName() + "\"; documentId="
+						+ next.getDocumentId() + "\r\n" + "\r\n";
 
 				dos.writeBytes(boundary);
 
@@ -624,8 +600,7 @@ public class DocuSignClient {
 				return "";
 			}
 			// Read the response
-			RequestSignatureResponse response = mapper.readValue(conn.getInputStream(),
-					RequestSignatureResponse.class);
+			RequestSignatureResponse response = mapper.readValue(conn.getInputStream(), RequestSignatureResponse.class);
 			return response.getEnvelopeId();
 		} finally {
 			if (conn != null)
@@ -643,16 +618,15 @@ public class DocuSignClient {
 	 * java.io.File[])
 	 */
 
-	public String requestSignatureFromDocuments(RequestSignatureFromDocuments request, File[] files)
-			throws MalformedURLException, IOException, DocuSigAPIException {
+	public String requestSignatureFromDocuments(RequestSignatureFromDocuments request, File[] files) throws MalformedURLException, IOException,
+			DocuSigAPIException {
 		// Convert the files to input streams
 		List<InputStream> streams = new ArrayList<InputStream>();
 		for (int i = 0; i < files.length; i++) {
 			streams.add(new FileInputStream(files[i]));
 		}
 
-		return requestSignatureFromDocuments(request,
-				streams.toArray(new InputStream[streams.size()]));
+		return requestSignatureFromDocuments(request, streams.toArray(new InputStream[streams.size()]));
 	}
 
 	/*
@@ -665,8 +639,8 @@ public class DocuSignClient {
 		HttpURLConnection conn = null;
 
 		// construct an outgoing xml request body
-		lastRequest = "<consoleViewRequest xmlns=\"http://www.docusign.com/restapi\">"
-				+ "<accountId>" + getAccountId() + "</accountId>" + "</consoleViewRequest>";
+		lastRequest = "<consoleViewRequest xmlns=\"http://www.docusign.com/restapi\">" + "<accountId>" + getAccountId() + "</accountId>"
+				+ "</consoleViewRequest>";
 
 		// append "/views/console" to the baseUrl and use in the request
 		try {
@@ -697,8 +671,7 @@ public class DocuSignClient {
 				response2.append(line);
 			String token1 = "//*[1]/*[local-name()='url']";
 			XPath xPath = XPathFactory.newInstance().newXPath();
-			String viewUrl = xPath.evaluate(token1,
-					new InputSource(new StringReader(response2.toString())));
+			String viewUrl = xPath.evaluate(token1, new InputSource(new StringReader(response2.toString())));
 			return viewUrl;
 		} catch (ProtocolException e) {
 			e.printStackTrace();
@@ -721,8 +694,7 @@ public class DocuSignClient {
 	 * , java.lang.String)
 	 */
 
-	public String requestSendingView(String envelopeId, String returnUrl)
-			throws MalformedURLException, IOException, DocuSigAPIException {
+	public String requestSendingView(String envelopeId, String returnUrl) throws MalformedURLException, IOException, DocuSigAPIException {
 		HttpURLConnection conn = null;
 		try {
 			lastRequest = "{\"returnUrl\": \"" + returnUrl + "\"}";
@@ -755,8 +727,7 @@ public class DocuSignClient {
 			XPath xPath = XPathFactory.newInstance().newXPath();
 			String viewUrl;
 			try {
-				viewUrl = xPath.evaluate(token1,
-						new InputSource(new StringReader(response3.toString())));
+				viewUrl = xPath.evaluate(token1, new InputSource(new StringReader(response3.toString())));
 			} catch (XPathExpressionException e) {
 				e.printStackTrace();
 				return "";
@@ -777,8 +748,7 @@ public class DocuSignClient {
 	 * .json.NewUsers)
 	 */
 
-	public NewUsers addNewUsers(NewUsers newUsers) throws MalformedURLException, IOException,
-			DocuSigAPIException {
+	public NewUsers addNewUsers(NewUsers newUsers) throws MalformedURLException, IOException, DocuSigAPIException {
 		HttpURLConnection conn = null;
 		try {
 			lastRequest = mapper.writeValueAsString(newUsers);
@@ -824,16 +794,13 @@ public class DocuSignClient {
 	 * java.lang.String, java.lang.String)
 	 */
 
-	public String requestRecipientView(String envelopeId, String userName, String email,
-			String clientUserId, String returnUrl, String authenticationMethod)
+	public String requestRecipientView(String envelopeId, String userName, String email, String clientUserId, String returnUrl, String authenticationMethod)
 			throws MalformedURLException, IOException, DocuSigAPIException {
 		HttpURLConnection conn = null;
 		try {
 
-			lastRequest = "{\"authenticationMethod\": \"" + authenticationMethod
-					+ "\",\"email\": \"" + email + "\",\"returnUrl\": \"" + returnUrl
-					+ "\",\"userName\": \"" + userName + "\",\"clientUserId\": \"" + clientUserId
-					+ "\"}";
+			lastRequest = "{\"authenticationMethod\": \"" + authenticationMethod + "\",\"email\": \"" + email + "\",\"returnUrl\": \"" + returnUrl
+					+ "\",\"userName\": \"" + userName + "\",\"clientUserId\": \"" + clientUserId + "\"}";
 
 			conn = getRestConnection(getBaseUrl() + "/envelopes/" + envelopeId + "/views/recipient");
 			conn.setRequestMethod("POST");
@@ -863,8 +830,7 @@ public class DocuSignClient {
 			XPath xPath = XPathFactory.newInstance().newXPath();
 			String viewUrl;
 			try {
-				viewUrl = xPath.evaluate(token1,
-						new InputSource(new StringReader(response3.toString())));
+				viewUrl = xPath.evaluate(token1, new InputSource(new StringReader(response3.toString())));
 			} catch (XPathExpressionException e) {
 				e.printStackTrace();
 				return "";
@@ -885,11 +851,9 @@ public class DocuSignClient {
 	 * util.Date, java.lang.String)
 	 */
 
-	public StatusInformation requestStatusInformation(Date fromDate, String fromToStatus)
-			throws MalformedURLException, IOException, DocuSigAPIException {
+	public StatusInformation requestStatusInformation(Date fromDate, String fromToStatus) throws MalformedURLException, IOException, DocuSigAPIException {
 		String fromDateStr = new SimpleDateFormat("MM/dd/yyyy").format(fromDate);
-		String envelopeUrl = baseUrl + "/envelopes?from_date="
-				+ URLEncoder.encode(fromDateStr, "UTF-8") + "&from_to_status=" + fromToStatus;
+		String envelopeUrl = baseUrl + "/envelopes?from_date=" + URLEncoder.encode(fromDateStr, "UTF-8") + "&from_to_status=" + fromToStatus;
 		HttpURLConnection conn = null;
 
 		try {
@@ -904,8 +868,7 @@ public class DocuSignClient {
 
 			BufferedInputStream bufferStream = extractAndSaveOutput(conn);
 
-			StatusInformation statusInformation = mapper.readValue(bufferStream,
-					StatusInformation.class);
+			StatusInformation statusInformation = mapper.readValue(bufferStream, StatusInformation.class);
 
 			return statusInformation;
 		} finally {
@@ -923,8 +886,7 @@ public class DocuSignClient {
 	 * .lang.String)
 	 */
 
-	public EnvelopeInformation requestEnvelopeInformation(String envelopeId)
-			throws MalformedURLException, IOException, DocuSigAPIException {
+	public EnvelopeInformation requestEnvelopeInformation(String envelopeId) throws MalformedURLException, IOException, DocuSigAPIException {
 		String envelopeUrl = baseUrl + "/envelopes/" + envelopeId;
 		HttpURLConnection conn = null;
 
@@ -940,8 +902,7 @@ public class DocuSignClient {
 
 			BufferedInputStream bufferStream = extractAndSaveOutput(conn);
 
-			EnvelopeInformation envelopeInformation = mapper.readValue(bufferStream,
-					EnvelopeInformation.class);
+			EnvelopeInformation envelopeInformation = mapper.readValue(bufferStream, EnvelopeInformation.class);
 
 			return envelopeInformation;
 		} finally {
@@ -959,8 +920,7 @@ public class DocuSignClient {
 	 * .String)
 	 */
 
-	public InputStream requestCombinedDocument(String envelopeId) throws MalformedURLException,
-			IOException, DocuSigAPIException {
+	public InputStream requestCombinedDocument(String envelopeId) throws MalformedURLException, IOException, DocuSigAPIException {
 		String envelopeUrl = baseUrl + "/envelopes/" + envelopeId + "/documents/combined";
 		HttpURLConnection conn = null;
 
@@ -989,8 +949,7 @@ public class DocuSignClient {
 	 * .lang.String)
 	 */
 
-	public RecipientInformation requestRecipientInformation(String envelopeId)
-			throws MalformedURLException, IOException, DocuSigAPIException {
+	public RecipientInformation requestRecipientInformation(String envelopeId) throws MalformedURLException, IOException, DocuSigAPIException {
 		String envelopeUrl = baseUrl + "/envelopes/" + envelopeId + "/recipients";
 		HttpURLConnection conn = null;
 
@@ -1021,13 +980,11 @@ public class DocuSignClient {
 	 * com.docusign.esignature.DocuSignClient#getRestConnection(java.lang.String
 	 * )
 	 */
-	public HttpURLConnection getRestConnection(String url) throws IOException,
-			MalformedURLException {
+	public HttpURLConnection getRestConnection(String url) throws IOException, MalformedURLException {
 		return getRestConnection(url, null, null);
 	}
 
-	public HttpURLConnection getRestConnection(String url, String contentType, String accept)
-			throws IOException, MalformedURLException {
+	public HttpURLConnection getRestConnection(String url, String contentType, String accept) throws IOException, MalformedURLException {
 		HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
 		if (this.accessToken != null) {
 			throw new IllegalStateException("docusign oauth approach not implemented");
@@ -1037,7 +994,7 @@ public class DocuSignClient {
 			conn.setRequestProperty("X-DocuSign-Authentication", getAuthHeader());
 
 		}
-		conn.setRequestProperty("Content-Type", contentType == null ? "application/json": contentType);
+		conn.setRequestProperty("Content-Type", contentType == null ? "application/json" : contentType);
 		conn.setRequestProperty("Accept", accept == null ? "application/json" : accept);
 		conn.setDoOutput(true);
 
@@ -1065,8 +1022,7 @@ public class DocuSignClient {
 		String lastError = str;
 	}
 
-	private void processErrorDetails(HttpURLConnection conn, int status) throws IOException,
-			DocuSigAPIException {
+	private void processErrorDetails(HttpURLConnection conn, int status) throws IOException, DocuSigAPIException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 		StringBuilder responseText = new StringBuilder();
 		String line = null;
@@ -1074,16 +1030,15 @@ public class DocuSignClient {
 			responseText.append(line);
 		lastError = responseText.toString();
 
-		Debug.logError("Error calling webservice (" + conn.getURL().getPath() + "), status is: "
-				+ status + ", error message is: " + lastError, this.getClass().getName());
+		Debug.logError("Error calling webservice (" + conn.getURL().getPath() + "), status is: " + status + ", error message is: " + lastError, this.getClass()
+				.getName());
 
 		throw new DocuSigAPIException(lastError);
 
 	}
 
 	private BufferedInputStream extractAndSaveOutput(HttpURLConnection conn) throws IOException {
-		BufferedInputStream bufferStream = new BufferedInputStream(conn.getInputStream(),
-				1024 * 1024);
+		BufferedInputStream bufferStream = new BufferedInputStream(conn.getInputStream(), 1024 * 1024);
 		bufferStream.mark(0);
 		BufferedReader br = new BufferedReader(new InputStreamReader(bufferStream));
 		String line = null;
