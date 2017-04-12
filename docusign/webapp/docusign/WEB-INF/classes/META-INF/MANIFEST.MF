@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Built-By: justin
+Build-Jdk: 1.6.0_45
+Created-By: Apache Maven 3.2.1
+Spring-Boot-Version: 1.1.8.RELEASE
+Main-Class: com.fluidnotions.docusign.DocuSignApplication
+Archiver-Version: Plexus Archiver
+

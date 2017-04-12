@@ -38014,7 +38014,7 @@ var Docusign = function Docusign(options) {
     var ajx = utils.AjaxWrap();
     var gwl = utils.QuickGrowl();
     var spin = utils.Spinner();
-    var formBuilder = utils.FormBuilder();
+  
     var tenantKey = null;
     var name = null;
     var userEmail = null;
@@ -38379,13 +38379,13 @@ var Docusign = function Docusign(options) {
                     if (debugging) console.log('setupDocumentSendEmbeddedViewBtn clicked!');
                     var mydata = {
                         title: $("#docName").val(),
-                        emailBody: $("#emailBody").val(),
-                        dynamicDocUrl: $("#docUrl").val(),
+                        emailbody: $("#emailBody").val(),
+                        dynamicdocurl: $("#docUrl").val(),
                         mode: $("#mode").val(),
                         mime: "application/pdf",
-                        emailSubject: $("#emailSubject").val(),
-                        dynamicDocFormName: $("#dynamicDocFormName").val(),
-                        ofbizUrlPrefix: $("#ofbizUrlPrefix").val()
+                        emailsubject: $("#emailSubject").val(),
+                        dynamicdocformname: $("#dynamicDocFormName").val(),
+                        ofbizurlprefix: $("#ofbizUrlPrefix").val()
                     }
                     signhereAction(mydata);
                 });
@@ -38517,7 +38517,7 @@ var Docusign = function Docusign(options) {
                     templatesFolderPath: "/docusign/main/templates/"
                 };
                 //suggest and fill all form fields
-                return formBuilder.build(addNewUserForm);
+                return utils.FormBuilder().build(addNewUserForm);
             }).then(function() {
                 $("#addNewUserForm").on('click', '#addUserBtn', function(e) {
                     e.preventDefault();
@@ -38608,7 +38608,7 @@ var Docusign = function Docusign(options) {
                         otherFormGroupTypesHtml: '<div class="form-check"><div class="col-sm-4"></div><label class="col-sm-8 form-check-label"><input id="cb-close" class="cb form-check-input" type="checkbox">close DocuSign User Profile</label></div><div class="form-check"><div class="col-sm-4"></div><label class="col-sm-8 form-check-label"><input id="cb-void" class="cb form-check-input" type="checkbox">Void users in-progress envelopes</label></div>'
                     }
                     //suggest and fill all form fields
-                return formBuilder.build(disableUserForm);
+                return utils.FormBuilder().build(disableUserForm);
             }).then(function() {
                 
                 $("#disableUserForm").on('click', '#disableUserBtn', function(e) {

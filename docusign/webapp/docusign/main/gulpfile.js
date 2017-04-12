@@ -87,9 +87,9 @@ gulp.task('build-fb', function() {
         .bundle()
         .pipe(source('formbuilderPlus.min.js'))
         .pipe(buffer())
-        .pipe(uglify({
-            compress: true
-        }))
+        // .pipe(uglify({
+        //     compress: true
+        // }))
         .pipe(gulp.dest('./dst'));
 
 });

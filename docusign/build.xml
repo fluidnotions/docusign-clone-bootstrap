@@ -70,8 +70,10 @@
 			</classpath>
 			<src path="${src.dir}" />
 		</javac>
-		<copy file="${ofbiz.dir}/hot-deploy/docusign/src/com/fluidnotions/docusign/services/NewUserDefaults.json" todir="${ofbiz.dir}/opentaps/docusign/webapp/docusign/WEB-INF/classes/com/fluidnotions/docusign/services"/>
-		<copy file="${ofbiz.dir}/hot-deploy/docusign/src/rebel.xml" todir="${ofbiz.dir}/opentaps/docusign/webapp/docusign/WEB-INF/classes/"/>
+		<copy file="${ofbiz.dir}/hot-deploy/docusign/src/com/fluidnotions/docusign/services/NewUserDefaults.json" todir="${ofbiz.dir}/hot-deploy/docusign/webapp/docusign/WEB-INF/classes/com/fluidnotions/docusign/services/"/>
+		<copy todir="${ofbiz.dir}/hot-deploy/docusign/webapp/docusign/WEB-INF/classes/META-INF/" >  
+		   <fileset dir="${ofbiz.dir}/hot-deploy/docusign/src/META-INF" includes="**"/>  
+		</copy> 
 	</target>
 
 
