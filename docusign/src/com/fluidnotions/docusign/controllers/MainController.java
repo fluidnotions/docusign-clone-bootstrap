@@ -224,7 +224,7 @@ public class MainController {
 				throws MalformedURLException, IOException {
 			
 			Gson gson = new Gson();
-			RecipientModel r1 = gson.fromJson(autoPositioned.getFistRecipient(), RecipientModel.class);
+			RecipientModel r1 = gson.fromJson(autoPositioned.getFirstRecipient(), RecipientModel.class);
 			RecipientModel r2 = gson.fromJson(autoPositioned.getSecondRecipient(), RecipientModel.class);
 			
 			List<RecipientModel> RecipientModels = new ArrayList<RecipientModel>();

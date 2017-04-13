@@ -30,8 +30,8 @@ public class AutoPositionedRecipientModelRequest {
 	private String emailSubject;
 	@JsonProperty("emailblurb")
 	private String emailblurb;
-	@JsonProperty("fistRecipient")
-	private String fistRecipient;
+	@JsonProperty("firstRecipient")
+	private String firstRecipient;
 	@JsonProperty("secondRecipient")
 	private String secondRecipient;
 	@JsonProperty("docuSignUserEmail")
@@ -60,12 +60,12 @@ public class AutoPositionedRecipientModelRequest {
 		this.tenantKey = tenantKey;
 	}
 
-	public String getFistRecipient() {
-		return fistRecipient;
+	public String getFirstRecipient() {
+		return firstRecipient;
 	}
 
-	public void setFistRecipient(String fistRecipient) {
-		this.fistRecipient = fistRecipient;
+	public void setFirstRecipient(String firstRecipient) {
+		this.firstRecipient = firstRecipient;
 	}
 
 	public List<RecipientModel> getRecipientModels() {
