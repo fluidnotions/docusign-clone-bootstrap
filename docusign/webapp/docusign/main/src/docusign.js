@@ -24,7 +24,6 @@ var Docusign = function Docusign(options) {
     var ajx = utils.AjaxWrap();
     var gwl = utils.QuickGrowl();
     var spin = utils.Spinner();
-  
     var tenantKey = null;
     var name = null;
     var userEmail = null;
@@ -504,7 +503,8 @@ var Docusign = function Docusign(options) {
                 selector: targetDiv
             }).then(function() {
                 if (debugging) console.log("top of showAddUserToTenantAccForm func. actioned: " + actioned);
-                var addNewUserForm = {
+                //suggest and fill all form fields
+                return utils.FormBuilder().build({
                     inputFieldArray: [{
                         name: "firstName",
                         type: "text"
@@ -518,20 +518,18 @@ var Docusign = function Docusign(options) {
                         name: "userLoginId",
                         type: "text"
                     }],
-                    formId: "addDocusignUserForm",
+                    formId: "addNewUserForm",
                     formButtonId: "addUserBtn",
                     formButtonName: "Add",
                     formButtonClasses: "btn btn-xl btn-primary pull-right",
                     lookupUrl: "/docusign-component/control/addDocusignUserSuggestFillForm",
-                    targetSelector: "#addNewUserForm",
+                    targetSelector: "#addNewUserTarget",
                     templatesFolderPath: "/docusign/main/templates/"
-                };
-                //suggest and fill all form fields
-                return utils.FormBuilder().build(addNewUserForm);
+                });
             }).then(function() {
-                $("#addNewUserForm").on('click', '#addUserBtn', function(e) {
+                $("#addNewUserTarget").on('click', '#addUserBtn', function(e) {
                     e.preventDefault();
-                    var nameValues = $("#addDocusignUserForm").serializeArray();
+                    var nameValues = $("#addNewUserForm").serializeArray();
                     var jsonReq = {};
                     $.each(nameValues, function(index, pairs) {
                         jsonReq[pairs.name] = pairs.value;
@@ -546,7 +544,7 @@ var Docusign = function Docusign(options) {
                         if (debugging) console.log("after call to addUserToTenantAcc(jsonReq). actioned is now " + actioned);
                     }
                 });
-                $("#addNewUserForm").on('click', '#addUserBtn-clear', function(e) {
+                $("#addNewUserTarget").on('click', '#addUserBtn-clear', function(e) {
                     e.preventDefault();
                     showAddUserToTenantAccForm();
                     spin.stop();
@@ -569,7 +567,7 @@ var Docusign = function Docusign(options) {
                     });
                 } else if (data.newUsers[0].userId) {
                     gwl.grrr({
-                        msg: "New user " + data.newUsers[0].userName + " was added!<br/>rAn activation email was sent for confirmation.<br/>Please remind the new user to confirm before attempting to use docusign.",
+                        msg: "New user " + data.newUsers[0].userName + " was added!<br/>An activation email was sent for confirmation.<br/>Please remind the new user to confirm before attempting to use docusign.",
                         type: "success",
                         displaySec: 5,
                         ele: "#addUserForm"
@@ -594,44 +592,52 @@ var Docusign = function Docusign(options) {
                 name: 'disableUserFormWrapper',
                 selector: targetDiv
             }).then(function() {
-                var disableUserForm = {
-                        inputFieldArray: [{
-                            name: "firstName",
-                            type: "text"
-                        }, {
-                            name: "lastName",
-                            type: "text"
-                        }, {
-                            name: "email",
-                            type: "email"
-                        }, {
-                            name: "userLoginId",
-                            type: "text"
-                        }],
-                        formId: "disableUserForm",
-                        formButtonId: "disableUserBtn",
-                        formButtonName: "Disable",
-                        formButtonClasses: "btn btn-xl btn-primary pull-right",
-                        lookupUrl: "/docusign-component/control/disableDocusignUserSuggestFillForm",
-                        targetSelector: "#disableUser",
-                        templatesFolderPath: "/docusign/main/templates/",
-                        otherFormGroupTypesHtml: '<div class="form-check"><div class="col-sm-4"></div><label class="col-sm-8 form-check-label"><input id="cb-close" class="cb form-check-input" type="checkbox">close DocuSign User Profile</label></div><div class="form-check"><div class="col-sm-4"></div><label class="col-sm-8 form-check-label"><input id="cb-void" class="cb form-check-input" type="checkbox">Void users in-progress envelopes</label></div>'
-                    }
-                    //suggest and fill all form fields
-                return utils.FormBuilder().build(disableUserForm);
+                //suggest and fill all form fields
+                return utils.FormBuilder().build({
+                    inputFieldArray: [{
+                        name: "firstName",
+                        type: "text"
+                    }, {
+                        name: "lastName",
+                        type: "text"
+                    }, {
+                        name: "email",
+                        type: "email"
+                    }, {
+                        name: "userLoginId",
+                        type: "text"
+                    }],
+                    formId: "disableUserForm",
+                    formButtonId: "disableUserBtn",
+                    formButtonName: "Disable",
+                    formButtonClasses: "btn btn-xl btn-primary pull-right",
+                    lookupUrl: "/docusign-component/control/disableDocusignUserSuggestFillForm",
+                    targetSelector: "#disableUserTagret",
+                    templatesFolderPath: "/docusign/main/templates/",
+                    otherFormGroupTypesHtml: '<div class="form-check"><div class="col-sm-4"></div><label class="col-sm-8 form-check-label"><input id="cb-close" class="cb form-check-input" type="checkbox">close DocuSign User Profile</label></div><div class="form-check"><div class="col-sm-4"></div><label class="col-sm-8 form-check-label"><input id="cb-void" class="cb form-check-input" type="checkbox">Void users in-progress envelopes</label></div>'
+                });
             }).then(function() {
-                
-                $("#disableUserForm").on('click', '#disableUserBtn', function(e) {
+                $("#disableUserTagret").on('click', '#disableUserBtn', function(e) {
                     e.preventDefault();
-                    alert("mark");
                     if (debugging) console.log('disableUserBtn clicked!');
                     var nameValues = $("#disableUserForm").serializeArray();
                     var jsonReq = {};
+
                     $.each(nameValues, function(index, pairs) {
                         jsonReq[pairs.name] = pairs.value;
                     });
-                    var closed = $("#cb-close").val();
-                    var voided = $("#cb-void").val();
+                    
+                    if ($('#cb-close').is(":checked")) {
+                        jsonReq.close = "on";
+                    }else{
+                        jsonReq.close = "off";
+                    }
+                    if ($('#cb-void').is(":checked")) {
+                        jsonReq.void = "on";
+                    }else{
+                        jsonReq.void = "off";
+                    }
+                    //ref 123
                     if (debugging) console.log(JSON2.stringify(jsonReq));
                     //FIXME seems to get called twice, casing errors duplicate user
                     if (actioned === false) {
@@ -639,14 +645,14 @@ var Docusign = function Docusign(options) {
                         actioned = true;
                     }
                 });
-                $("#disableUserForm").on('click', '#disableUserBtn-clear', function(e) {
+                $("#disableUserTagret").on('click', '#disableUserBtn-clear', function(e) {
                     e.preventDefault();
                     //alert("mark");
                     showDisableUserForm();
                     spin.stop();
                 });
                 $('#disableUserBtn').prop('disabled', true);
-                $("#disableUserForm").on('click', '.cb', function(e) {
+                $("#disableUserTagret").on('click', '.cb', function(e) {
                     $('#disableUserBtn').prop('disabled', false);
                 });
             });
@@ -660,7 +666,6 @@ var Docusign = function Docusign(options) {
         disableUser = function disableUser(jsonRequestData) {
             //add tenant key
             jsonRequestData.tenantKey = tenantKey;
-
             spin.start();
             return ajx.ajaxPost(getEndPoint() + 'disableUser', jsonRequestData).
             then(function(data) {

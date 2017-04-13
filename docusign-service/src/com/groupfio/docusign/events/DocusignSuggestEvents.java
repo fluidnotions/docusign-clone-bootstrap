@@ -52,7 +52,7 @@ public class DocusignSuggestEvents {
 
 			EntityCondition combined = EntityCondition.makeCondition(exprs, EntityOperator.AND);
 
-			List<GenericValue> resultList = delegator.findByConditionCache("DocusignUserLoginPersonNameAndEmail", combined, null,
+			List<GenericValue> resultList = delegator.findByCondition("DocusignUserLoginPersonNameAndEmail", combined, null,
 					UtilMisc.toList("purposeFromDate ASC"));
 
 			if (UtilValidate.isNotEmpty(resultList)) {

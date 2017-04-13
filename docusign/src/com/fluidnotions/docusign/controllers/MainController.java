@@ -359,8 +359,8 @@ public class MainController {
 	public Response disableUser(
 			@RequestParam("tenantKey") String tenantKey,
 			@RequestParam("userLoginId") String targetUserLoginId,
-			@RequestParam(value = "closeDocusignUser", required = false, defaultValue = "off") String closeDocusignUser,
-			@RequestParam(value = "voidInProgressEnvelopes", required = false, defaultValue = "off") String voidInProgressEnvelopes)
+			@RequestParam("close") String closeDocusignUser,
+			@RequestParam("void") String voidInProgressEnvelopes)
 			throws MalformedURLException, IOException {
 
 		boolean closed = false, voided = false;
