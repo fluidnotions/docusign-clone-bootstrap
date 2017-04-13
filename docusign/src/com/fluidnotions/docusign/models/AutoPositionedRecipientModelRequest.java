@@ -16,17 +16,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true) 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Generated("org.jsonschema2pojo")
-@JsonPropertyOrder({ 
-	"tenantKey", 
-	"dynamicDocUrl", 
-	"title", 
-	"emailSubject",
-	"emailblurb", 
-	"RecipientModels", 
-	"docuSignUserEmail",
-	 "afterSendRedirectUrl"})
+@JsonPropertyOrder({ "tenantKey", "dynamicDocUrl", "title", "emailSubject", "emailblurb", "RecipientModels", "docuSignUserEmail", "afterSendRedirectUrl",
+		"fistRecipient", "secondRecipient" })
 public class AutoPositionedRecipientModelRequest {
 
 	@JsonProperty("tenantKey")
@@ -37,8 +30,10 @@ public class AutoPositionedRecipientModelRequest {
 	private String emailSubject;
 	@JsonProperty("emailblurb")
 	private String emailblurb;
-	@JsonProperty("RecipientModels")
-	private List<RecipientModel> RecipientModels = new ArrayList<RecipientModel>();
+	@JsonProperty("fistRecipient")
+	private String fistRecipient;
+	@JsonProperty("secondRecipient")
+	private String secondRecipient;
 	@JsonProperty("docuSignUserEmail")
 	private String docuSignUserEmail;
 	@JsonProperty("dynamicDocUrl")
@@ -46,64 +41,47 @@ public class AutoPositionedRecipientModelRequest {
 	@JsonProperty("mime")
 	private String mime;
 	@JsonProperty("afterSendRedirectUrl")
-    private String afterSendRedirectUrl;
+	private String afterSendRedirectUrl;
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonIgnore
+	private List<RecipientModel> recipientModels = new ArrayList<RecipientModel>();
 
-	/**
-	 * No args constructor for use in serialization
-	 * 
-	 */
 	public AutoPositionedRecipientModelRequest() {
 	}
 
-	/**
-	 * 
-	 * @param RecipientModels
-	 * @param tenantKey
-	 */
-	public AutoPositionedRecipientModelRequest(String tenantKey,
-			List<RecipientModel> RecipientModels) {
-		this.tenantKey = tenantKey;
-		this.RecipientModels = RecipientModels;
-	}
-
-	/**
-	 * 
-	 * @return The tenantKey
-	 */
 	@JsonProperty("tenantKey")
 	public String getTenantKey() {
 		return tenantKey;
 	}
 
-	/**
-	 * 
-	 * @param tenantKey
-	 *            The tenantKey
-	 */
 	@JsonProperty("tenantKey")
 	public void setTenantKey(String tenantKey) {
 		this.tenantKey = tenantKey;
 	}
 
-	/**
-	 * 
-	 * @return The RecipientModels
-	 */
-	@JsonProperty("RecipientModels")
-	public List<RecipientModel> getRecipientModels() {
-		return RecipientModels;
+	public String getFistRecipient() {
+		return fistRecipient;
 	}
 
-	/**
-	 * 
-	 * @param RecipientModels
-	 *            The RecipientModels
-	 */
-	@JsonProperty("RecipientModels")
+	public void setFistRecipient(String fistRecipient) {
+		this.fistRecipient = fistRecipient;
+	}
+
+	public List<RecipientModel> getRecipientModels() {
+		return recipientModels;
+	}
+
 	public void setRecipientModels(List<RecipientModel> RecipientModels) {
-		this.RecipientModels = RecipientModels;
+		this.recipientModels = RecipientModels;
+	}
+
+	public String getSecondRecipient() {
+		return secondRecipient;
+	}
+
+	public void setSecondRecipient(String secondRecipient) {
+		this.secondRecipient = secondRecipient;
 	}
 
 	@JsonAnyGetter
@@ -175,26 +153,24 @@ public class AutoPositionedRecipientModelRequest {
 	public void setMime(String mime) {
 		this.mime = mime;
 	}
-	
+
 	/**
-     * 
-     * @return
-     *     The afterSendRedirectUrl
-     */
-    @JsonProperty("afterSendRedirectUrl")
-    public String getAfterSendRedirectUrl() {
-        return afterSendRedirectUrl;
-    }
+	 * 
+	 * @return The afterSendRedirectUrl
+	 */
+	@JsonProperty("afterSendRedirectUrl")
+	public String getAfterSendRedirectUrl() {
+		return afterSendRedirectUrl;
+	}
 
-    /**
-     * 
-     * @param afterSendRedirectUrl
-     *     The afterSendRedirectUrl
-     */
-    @JsonProperty("afterSendRedirectUrl")
-    public void setAfterSendRedirectUrl(String afterSendRedirectUrl) {
-        this.afterSendRedirectUrl = afterSendRedirectUrl;
-    }
-
+	/**
+	 * 
+	 * @param afterSendRedirectUrl
+	 *            The afterSendRedirectUrl
+	 */
+	@JsonProperty("afterSendRedirectUrl")
+	public void setAfterSendRedirectUrl(String afterSendRedirectUrl) {
+		this.afterSendRedirectUrl = afterSendRedirectUrl;
+	}
 
 }

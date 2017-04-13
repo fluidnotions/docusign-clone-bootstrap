@@ -2,6 +2,7 @@ package com.fluidnotions.docusign.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,10 +28,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fluidnotions.docusign.models.AuthenticatingUser;
 import com.fluidnotions.docusign.models.AutoPositionedRecipientModelRequest;
 import com.fluidnotions.docusign.models.DocuSignUser;
+import com.fluidnotions.docusign.models.RecipientModel;
 import com.fluidnotions.docusign.models.SetupDocumentRequest;
 import com.fluidnotions.docusign.services.DocuSignService;
 import com.fluidnotions.docusign.services.Download;
 import com.fluidnotions.opentaps.integration.docusign.DocuSignEntityUtil;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 
 
@@ -218,6 +222,16 @@ public class MainController {
 		@RequestMapping(value = "/autoPositionedSigner", method = RequestMethod.POST)
 		public Response autoPositionedSigner(@RequestBody AutoPositionedRecipientModelRequest  autoPositioned)
 				throws MalformedURLException, IOException {
+			
+			Gson gson = new Gson();
+			RecipientModel r1 = gson.fromJson(autoPositioned.getFistRecipient(), RecipientModel.class);
+			RecipientModel r2 = gson.fromJson(autoPositioned.getSecondRecipient(), RecipientModel.class);
+			
+			List<RecipientModel> RecipientModels = new ArrayList<RecipientModel>();
+			RecipientModels.add(r1);
+			RecipientModels.add(r2);
+			autoPositioned.setRecipientModels(RecipientModels);
+			
 			String ts = new Long(new Date().getTime()).toString();
 			String dst = autoPositioned.getTenantKey() + File.separator + autoPositioned.getDocuSignUserEmail()+ File.separator + ts;
 

@@ -296,13 +296,13 @@ var Docusign = function Docusign(options) {
                     "emailblurb": argsObj.emailBody,
                     "afterSendRedirectUrl": afterSendRedirectUrl,
                     "docuSignUserEmail": docuSignOnBehalfOfUser.email,
-                    "RecipientModels": []
-                }
-                // Must set |clientUserId| for embedded recipients and provide the same
-                // value when requesting the recipient view URL
-                // therefore |clientUserId| must be set for sender, left blank for
-                // Recipient
-                //"signerEmail", "signerName", "recipientId", "routingOrder", "clientUserId"
+                };
+               //var RecipientModels = [];
+            // Must set |clientUserId| for embedded recipients and provide the same
+            // value when requesting the recipient view URL
+            // therefore |clientUserId| must be set for sender, left blank for
+            // Recipient
+            //"signerEmail", "signerName", "recipientId", "routingOrder", "clientUserId"
             var sname = $("#senderSignUserName").val();
             var semail = $("#senderSignUserEmail").val();
             var guid = getGUID();
@@ -314,7 +314,8 @@ var Docusign = function Docusign(options) {
                 recipientId: "1",
                 embeddedSigner: true
             }
-            request.RecipientModels.push(sender);
+            //RecipientModels.push(sender);
+            request.firstRecipient = JSON2.stringify(sender);
             var rname = $("#recipientSignUserName").val();
             var remail = $("#recipientSignUserEmail").val();
             var recipient = {
@@ -324,7 +325,9 @@ var Docusign = function Docusign(options) {
                 recipientId: "2",
                 embeddedSigner: false
             }
-            request.RecipientModels.push(recipient);
+            request.secondRecipient = JSON2.stringify(recipient);
+            //RecipientModels.push(recipient);
+            //request.recipientModelString = JSON2.stringify(RecipientModels);
             spin.start();
             if (debugging) console.log("startSignAndSend request " + JSON2.stringify(request))
             return ajx.ajaxPostJson(getEndPoint() + 'autoPositionedSigner', request).then(function(data) {
@@ -622,19 +625,17 @@ var Docusign = function Docusign(options) {
                     if (debugging) console.log('disableUserBtn clicked!');
                     var nameValues = $("#disableUserForm").serializeArray();
                     var jsonReq = {};
-
                     $.each(nameValues, function(index, pairs) {
                         jsonReq[pairs.name] = pairs.value;
                     });
-                    
                     if ($('#cb-close').is(":checked")) {
                         jsonReq.close = "on";
-                    }else{
+                    } else {
                         jsonReq.close = "off";
                     }
                     if ($('#cb-void').is(":checked")) {
                         jsonReq.void = "on";
-                    }else{
+                    } else {
                         jsonReq.void = "off";
                     }
                     //ref 123
