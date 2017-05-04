@@ -766,11 +766,8 @@ $(function() {
         if (Docusign) {
             clearInterval(docusigninthandler);
             domSetup.loadCSSIfNotAlreadyLoaded("/docusign/main/global/bootstrap/css/bootstrap.min.css", "bootstrap");
-            domSetup.loadCSSIfNotAlreadyLoaded("/docusign/main/global/css/jquery.dataTables.min.css");
-            domSetup.loadCSSIfNotAlreadyLoaded("/docusign/main/global/css/dataTables.bootstrap.min.css");
             domSetup.loadCSSIfNotAlreadyLoaded("/docusign/main/global/css/google-fonts.css", "fonts.googleapis.com");
             //domSetup.loadCSSIfNotAlreadyLoaded("/docusign/main/dst/docusign-boot-styles.min.css")
-            domSetup.loadCSSIfNotAlreadyLoaded("/docusign/main/dst/docusign-styles.min.css");
             var ds = Docusign({
                 loginUrlKey: loginUrlKey,
                 userLoginId: userLoginId,

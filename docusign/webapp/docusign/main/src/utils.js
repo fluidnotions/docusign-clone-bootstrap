@@ -116,10 +116,9 @@ var TemplateUtils = function TemplateUtils(options) {
                     tmpl: tmplData
                 });
                 var html = $.render.tmpl(item.data);
-                if (item.selector) {
-                    selector = item.selector;
-                }
-                $(selector).html(html);
+                var sel = item.selector || selector;
+     
+                $(sel).html(html);
                 return html;
             });
         },

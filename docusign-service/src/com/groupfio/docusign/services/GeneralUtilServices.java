@@ -3,7 +3,7 @@ package com.groupfio.docusign.services;
 import org.opentaps.foundation.service.Service;
 import org.opentaps.foundation.service.ServiceException;
 
-import com.groupfio.extension.helper.OTUtil;
+import com.groupfio.docusign.OTUtil;
 
 public class GeneralUtilServices extends Service {
 
