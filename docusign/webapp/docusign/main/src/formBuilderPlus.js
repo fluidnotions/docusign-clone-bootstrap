@@ -143,8 +143,19 @@ module.exports = function FormBuilderPlus() {
                 if (debug) console.log("focus event on id: " + event.currentTarget.id + " hiding .suggest");
                 $(".suggest-menu").hide();
             });
-            // for some reason this only works on document tried other selector combos
-            $(options.targetSelector).on('keyup', '.formBuilderPlus-input', function(event) {
+
+            var typingTimer;
+            var doneTypingInterval = 800;
+
+            //on input change, start the countdown
+            $(options.targetSelector).on("input", ".formBuilderPlus-input", function(event) {    
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(function(){
+                   doneTyping(event);
+                }, doneTypingInterval);
+            });
+            //user is "finished typing," do something
+            function doneTyping(event) {
                 fieldName = event.currentTarget.name;
                 if (debug) console.log("keyup event on field with name: " + fieldName);
                 //also the id of element so we can extract val() for searchTerm
@@ -171,7 +182,8 @@ module.exports = function FormBuilderPlus() {
                 }).then(function() {
                     $("#" + fieldName + "-input-sugggest").show();
                 });
-            });
+
+            }
             // for some reason this only works on document tried other selector combos
             $(options.targetSelector).on("click", ".suggest-menu .suggestion", function(event) {
                 var arrObjIndex = event.currentTarget.id.split('-')[1];

@@ -3,7 +3,7 @@
     <div class="form-group"><label class="col-sm-4 control-label" label-required="*">{{:fieldDisplyLabel}}</label>
         <div class="col-sm-8">
             <li class="dropdown" style="list-style-type:none;"><input type="{{:type}}" class="formBuilderPlus-input form-control" id="{{:name}}-input" name="{{:name}}" [if currentInput.{{:name}}] value=[@currentInput.{{:name}}][|if] autocomplete="off">
-                <ul id="{{:name}}-input-sugggest" class="suggest-menu dropdown-menu" style="z-index:1000;max-height: 150px;overflow-y:scroll;">
+                <ul id="{{:name}}-input-sugggest" class="suggest-menu dropdown-menu" style="z-index:1000;max-height: 150px;overflow-y:auto;">
                     [for suggestions]
                     <li><a class="suggestion" id="firstName-[@#index]" href="#">[@{{:name}}]</a></li>
                     [|for]
