@@ -7,7 +7,6 @@ var $ = global.ds$ = require("jquery");
 require("./noConflictEditedDeps/bootstrap-notify");
 require('./noConflictEditedDeps/jsrender');
 var spin = require('spin');
-var moment = require("moment");
 var Promise = require("bluebird");
 var JSON2 = require('JSON2');
 var DomSetup = function DomSetup(selector, temaplateFullPathName, appendToSelector) {
@@ -134,10 +133,10 @@ var TemplateUtils = function TemplateUtils(options) {
                 return html;
             });
         }
-    $.views.converters("dateformat", function(val) {
-        //2015-09-02T12:25:33.9500000Z
-        return moment(parseInt(val)).format("dddd, h:mm:ss a");
-    });
+    // $.views.converters("dateformat", function(val) {
+    //     //2015-09-02T12:25:33.9500000Z
+    //     return moment(parseInt(val)).format("dddd, h:mm:ss a");
+    // });
     return {
         getPath: getPath,
         renderExtTemplate: renderExtTemplate,

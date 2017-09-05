@@ -106,11 +106,7 @@
         <field name="documentsCombinedUri" type="comment"></field>
         <field name="certificateUri" type="comment"></field>
         <field name="templatesUri" type="comment"></field>
-        
-        <relation type="many" rel-entity-name="DocuSignEnvelopeSignerStatus">
-        	<key-map field-name="envelopeId"/>
-      	</relation>
-
+       
         <prim-key field="envelopeId"/>
     </entity>
     

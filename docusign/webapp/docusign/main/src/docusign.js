@@ -4,6 +4,7 @@ var eModal = require('./eModal-hacked')();
 var JSON2 = require('JSON2');
 var $ = global.ds$ || alert("FATAL: global.ds$ is null!");
 var domSetup = utils.DomSetup();
+var moment = require("moment");
 var Docusign = function Docusign(options) {
     var publicInterface;
     var depBasePath = "/main/";
@@ -97,7 +98,7 @@ var Docusign = function Docusign(options) {
                     tenantKey: tenantKey
                 });
             }).then(function(userData) {
-                console.log("init getDocuSignUser response: " + userData);
+                console.log("init getDocuSignUser response: " + JSON.stringify(userData, null, 2));
                 var docuSignUsersAuthAndAssociated = JSON.parse(userData.otherJson);
                 //FIXME name is not present server side issue
                 authenicatingUser = docuSignUsersAuthAndAssociated.authenticatingUser;
@@ -184,7 +185,7 @@ var Docusign = function Docusign(options) {
             var dynamicDocUrl = null;
             //if there is no dynamicDocUrl then there must be a dynamicDocFormName else we throw an error
             if (!mydata.dynamicdocurl) {
-                dynamicDocUrl = formInputToUrlWithQueryStr(mydata.dynamicDocFormName, mydata.ofbizUrlPrefix);
+                dynamicDocUrl = formInputToUrlWithQueryStr(mydata.dynamicdocformname, mydata.ofbizurlprefix);
             } else {
                 dynamicDocUrl = mydata.dynamicdocurl;
             }
@@ -264,22 +265,28 @@ var Docusign = function Docusign(options) {
                 tenantKey: tenantKey,
                 envelopeId: envelopeId
             }).then(function(data) {
-                if (debugging) console.log("response: " + JSON2.stringify(data));
+                if (debugging) console.log("response: " + JSON2.stringify(data, null, 2));
+                //use moment here to transform date strings since jsrender via jquery seems not to work
+                data.envelopeInformation.sentDateTime = transformDateString(data.envelopeInformation.sentDateTime);
                 return tmpls.renderExtTemplateStr({
                     name: 'envelopeSummary',
                     data: data
                 });
             }).then(function(envelopeSummaryHtml) {
-                return Promise.resolve(eModal.alert({
+                eModal.alert({
                     message: envelopeSummaryHtml,
                     buttons: false
-                }, "New envelope Sent"));
+                }, "New envelope Sent");
+                return Promise.resolve();
             }).then(function() {
                 setTimeout(function() {
                     finishSigningSession();
-                }, 1300);
+                }, 3500);
             }).then(function() {})
             if (debugging) console.log("showEnvelopeSummary called!");
+        },
+        transformDateString = function transformDateString(val){
+            return moment(parseInt(val)).format("dddd, h:mm:ss a");
         },
         startSignAndSend = function startSignAndSend(argsObj) {
             //NOTE: can't set  "afterSendRedirectUrl": afterSendRedirectUrl,
@@ -460,7 +467,7 @@ var Docusign = function Docusign(options) {
                     displaySec: 3
                 });
                 spin.stop();
-            }, 1300);
+            }, 2500);
         },
         // showAddUserToTenantAccForm = function showAddUserToTenantAccForm() {
         //     var actioned = false;

@@ -101,7 +101,7 @@ gulp.task('build', function() {
         .bundle()
         .pipe(source('docusign-bundle.js'))
         .pipe(buffer())
-        .pipe(uglify({compress: true}))
+        // .pipe(uglify({compress: true}))
         .pipe(gulp.dest('./dst'));
 
 });
