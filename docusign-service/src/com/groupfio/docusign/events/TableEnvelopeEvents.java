@@ -156,6 +156,13 @@ public class TableEnvelopeEvents {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally{
+			try {
+				sqlProcessor.close();
+			} catch (GenericDataSourceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		Debug.logInfo("result: " + jsonArray, module);
