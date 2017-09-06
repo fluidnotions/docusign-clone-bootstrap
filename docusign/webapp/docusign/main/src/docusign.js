@@ -100,9 +100,10 @@ var Docusign = function Docusign(options) {
             }).then(function(userData) {
                 console.log("init getDocuSignUser response: " + JSON.stringify(userData, null, 2));
                 var docuSignUsersAuthAndAssociated = JSON.parse(userData.otherJson);
+                console.log("docuSignUsersAuthAndAssociated: " + JSON.stringify(docuSignUsersAuthAndAssociated, null, 2));
                 //FIXME name is not present server side issue
                 authenicatingUser = docuSignUsersAuthAndAssociated.authenticatingUser;
-                if (userData.status === "success") {
+                if (docuSignUsersAuthAndAssociated.docuSignUser.enabled) {
                     spin.stop();
                     gwl.grrr({
                         msg: "Got DocuSignUser for login, ready to use DocuSign.",
@@ -123,13 +124,6 @@ var Docusign = function Docusign(options) {
             }).then(function() {
                 setupIframeMessageEventListener();
                 if (modeAdmin !== true) {
-                    tmpls.renderExtTemplate({
-                        name: "signHere",
-                        selector: "docusign",
-                        data: {
-                            debugging: debugging
-                        }
-                    }).then(function() {
                         //Examples: ViewInvoice.ftl
                         // <a data-dynamicDocUrl="<@ofbizUrl>invoice.pdf?invoiceId=${invoice.invoiceId}&amp;reportId=FININVOICE&amp;reportType=application/pdf</@ofbizUrl>" data-mime="application/pdf" data-title="invoice-${invoice.invoiceId}"  data-emailSubject="Please sign asap!" data-mode="signAndSend" data-emailBody="Please complete tags and sign the document" class="signhere subMenuButton" target="_blank">Sign And Send</a>
                         $('.signhere').click(function(event) {
@@ -145,7 +139,6 @@ var Docusign = function Docusign(options) {
                             var mydata = $(event.target).closest('a').data();
                             signhereAction(mydata);
                         });
-                    });
                 } else {
                     tmpls.renderExtTemplate({
                         name: "adminDashboard",
