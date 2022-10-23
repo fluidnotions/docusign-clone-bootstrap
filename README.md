@@ -2,11 +2,11 @@
 
 Table of Contents
 
-[Docusign integration components](#__RefHeading__105_48820836)
-[Initialize Docusign](#__RefHeading__540_1136857470)
-[Sign Button Implementation](#__RefHeading__109_48820836)
-[Providing the Dynamic Document URL](#__RefHeading__504_1136857470)
-[Docusign Admin Dashboard](#__RefHeading__294_2020576435)
+[Docusign integration components](#__RefHeading__105_48820836)  
+[Initialize Docusign](#__RefHeading__540_1136857470)  
+[Sign Button Implementation](#__RefHeading__109_48820836)  
+[Providing the Dynamic Document URL](#__RefHeading__504_1136857470)  
+[Docusign Admin Dashboard](#__RefHeading__294_2020576435)  
 
 ## Docusign integration components
 
